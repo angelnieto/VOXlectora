@@ -1,0 +1,21 @@
+# view res/layout/capa_gestos.xml #generated:2
+-keep class android.gesture.GestureOverlayView { <init>(...); }
+
+# view AndroidManifest.xml #generated:73
+-keep class es.ricardo.servicio_voxlectora.Escuchador { <init>(...); }
+
+# view AndroidManifest.xml #generated:65
+-keep class es.ricardo.servicio_voxlectora.Servicio { <init>(...); }
+
+# view AndroidManifest.xml #generated:39
+-keep class es.ricardo.voxlectora.CamaraActivity { <init>(...); }
+
+# view AndroidManifest.xml #generated:55
+-keep class es.ricardo.voxlectora.ConfirmacionActivity { <init>(...); }
+
+# view AndroidManifest.xml #generated:27
+-keep class es.ricardo.voxlectora.IntroActivity { <init>(...); }
+
+# view AndroidManifest.xml #generated:46
+-keep class es.ricardo.voxlectora.ResultadoActivity { <init>(...); }
+
