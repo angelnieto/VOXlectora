@@ -44,7 +44,6 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
-
 public class ResultadoActivity extends Activity implements TextToSpeech.OnInitListener, OnGesturePerformedListener{
 
 	static final int ACTION_VALUE=1;
@@ -155,15 +154,7 @@ public class ResultadoActivity extends Activity implements TextToSpeech.OnInitLi
 		    
 		    mostrarVeces();
 			
-		    /*if(texto==null || "".equals(texto.trim()) || getString(R.string.nada).equals(texto.trim())){
-		    	sinResultados(R.string.nada,R.raw.sin_resultados);
-		    }else if(getString(R.string.limite).equals(texto.trim())){
-				sinResultados(R.string.limite,R.raw.limite);
-		    }else{
-				mostrarMensaje(texto);
-				decirMensaje(texto);
-			}*/
-		    filtrarResultados(texto);
+		   filtrarResultados(texto);
         }else{
         	if(mp!=null && mp.isPlaying())
         		mp.stop();
@@ -320,14 +311,6 @@ public class ResultadoActivity extends Activity implements TextToSpeech.OnInitLi
 			
 			gestosView.removeOnGesturePerformedListener(this);
 			
-		    /*if(texto==null || "".equals(texto.trim()) || getString(R.string.nada).equals(texto.trim())){
-		    	sinResultados(R.string.nada,R.raw.sin_resultados);
-		    }else if(getString(R.string.limite).equals(texto.trim())){
-				sinResultados(R.string.limite,R.raw.limite);
-		    }else{
-				mostrarMensaje(texto);
-				decirMensaje(texto);
-			}*/
 		    filtrarResultados(texto);
 		}
 
@@ -494,6 +477,7 @@ public class ResultadoActivity extends Activity implements TextToSpeech.OnInitLi
 			texto=texto.replaceAll("!", "I");
 			texto=texto.replaceAll("¡", "I");
 			texto=texto.replaceAll(" cm", " centímetros");
+			texto=texto.replaceAll(" mm", " milímetros");
 			
 			return texto;
 		}

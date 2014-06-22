@@ -89,84 +89,7 @@ public class CamaraActivity extends Activity implements SurfaceHolder.Callback{
 					AutoFocalizador autoFocusCallBack = new AutoFocalizador();
 					miCamara.autoFocus(autoFocusCallBack);
 					
-				/*	ShutterCallback myShutterCallback = new ShutterCallback() {
-					
-						public void onShutter() {
-							MediaPlayer.create(CamaraActivity.this, R.raw.camera_click).start();
-						}
-					};
-	
-					PictureCallback myPictureCallback = new PictureCallback() {
-					
-						public void onPictureTaken(byte[] data, Camera myCamera) {
-							takePicture.setText("");
-						}
-					};
-					
-					PictureCallback myJpeg = new PictureCallback() {
-				
-						public void onPictureTaken(byte[] data, Camera myCamera) {
-
-							if(data != null)
-								done(data);
-						}
-						
-						void done(byte[] tempdata){
-							
-							Exception excepcion=null;
-							
-							String imageFilePath = getUriArchivoImagen().getPath();
-	
-				           	try {
-							       FileOutputStream out = new FileOutputStream(imageFilePath);
-				           		
-							       Options options = new BitmapFactory.Options();
-							       options.inJustDecodeBounds = true;
-							       BitmapFactory.decodeByteArray(tempdata, 0, tempdata.length, options);
-							       
-							       //El nuevo tamaño máximo al que queremos reescalar la imagen
-							       final int REQUIRED_SIZE=1000;
-	
-							       //Buscamos la escala correcta. Debería ser potencia de 2
-							       int scale=1;
-							       while(options.outWidth/scale/2>=REQUIRED_SIZE && options.outHeight/scale/2>=REQUIRED_SIZE)
-							           scale*=2;
-	
-							       //Decodificamos la imagen con el nuevo tamaño
-							       BitmapFactory.Options o2 = new BitmapFactory.Options();
-							       o2.inSampleSize=scale;
-							       Bitmap bmp=BitmapFactory.decodeByteArray(tempdata, 0, tempdata.length, o2);
-							       					      
-							       Matrix matrix = new Matrix();
-							       matrix.postRotate(Integer.parseInt(gradosARotar));
-							      			      
-							       Bitmap resizedBitmap = Bitmap.createBitmap(bmp, 0, 0, bmp.getWidth(),bmp.getHeight(), matrix, false);
-							        
-							       resizedBitmap.compress(Bitmap.CompressFormat.JPEG, 100, out);
-						           out.close();  
-							} catch (Exception e) {
-									mp=MediaPlayer.create(CamaraActivity.this, R.raw.error_captura);
-									mp.start();
-							        excepcion=e;
-							}
-							
-				           	if(excepcion==null){
-					           	//Borro el texto del procesamiento anterior
-								SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(CamaraActivity.this);
-								SharedPreferences.Editor editor = settings.edit();
-								editor.remove(getString(R.string.texto));
-								editor.commit();
-								
-								//Llamo a la siguiente pantalla
-						        Intent results = new Intent(CamaraActivity.this, ResultadoActivity.class);
-						    	startActivityForResult(results, ACTION_VALUE);
-				           	}
-						}
-					
-					};
-					
-					miCamara.takePicture(myShutterCallback, myPictureCallback, myJpeg);
-					takePicture.setEnabled(false); */
+					takePicture.setEnabled(false); 
 				}
 			});
 			
@@ -376,8 +299,6 @@ public class CamaraActivity extends Activity implements SurfaceHolder.Callback{
 	    		MediaPlayer.create(CamaraActivity.this, R.raw.alarma_foco).start();
 	    			    		
 	    	miCamara.takePicture(myShutterCallback, myPictureCallback, myJpeg);
-			takePicture.setEnabled(false);
-	    	
 	    }
 	}
 
