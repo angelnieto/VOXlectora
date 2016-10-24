@@ -55,6 +55,15 @@ public class CamaraActivity extends Activity implements SurfaceHolder.Callback{
 	private String gradosARotar = "0";
 	private float coordenadaY,coordenadaX;
 	
+	private final BroadcastReceiver abcd = new BroadcastReceiver() {
+        
+		@Override
+        public void onReceive(Context context, Intent intent) {
+			 detener(false);                            
+        }
+		
+	};
+	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -213,8 +222,6 @@ public class CamaraActivity extends Activity implements SurfaceHolder.Callback{
 
 	private class AutoFocalizador implements Camera.AutoFocusCallback {
 		
-		private boolean isAutoFocused=false;
-		
 		@Override
 	    public void onAutoFocus(boolean success, Camera camera) {
 			
@@ -294,8 +301,7 @@ public class CamaraActivity extends Activity implements SurfaceHolder.Callback{
 			
 			};
 			
-	    	isAutoFocused=success;
-	    	if(isAutoFocused)
+	    	if(success)
 	    		MediaPlayer.create(CamaraActivity.this, R.raw.alarma_foco).start();
 	    			    		
 	    	miCamara.takePicture(myShutterCallback, myPictureCallback, myJpeg);
@@ -317,26 +323,20 @@ public class CamaraActivity extends Activity implements SurfaceHolder.Callback{
 		//File mediaStorageDir = new File(Environment.getExternalStorageDirectory(),getString(R.string.raizMovil));
 		File mediaStorageDir = new File(this.getFilesDir(),getString(R.string.raizMovil));
 		// Crear el directorio de almacenamiento si no existe
-	    if (! mediaStorageDir.exists())
-	        if (! mediaStorageDir.mkdirs())
+	    if (!mediaStorageDir.exists() && !mediaStorageDir.mkdirs())
 	            return null;
 	    
 	    //Crear un archivo con la imagen
-	    File mediaFile = new File(mediaStorageDir.getPath() + File.separator + getString(R.string.nombre_imagen));
-
-	    return mediaFile;
+	    return new File(mediaStorageDir.getPath() + File.separator + getString(R.string.nombre_imagen));
 	}
 
 	   //Método una vez se vuelve a esta ventana
 		protected void onActivityResult(int requestCode,int resultCode,Intent data){
-			switch(requestCode){
-			case ACTION_VALUE:
-				if(resultCode==RESULT_CANCELED){
+			if(requestCode == ACTION_VALUE && resultCode==RESULT_CANCELED){
 					setResult(RESULT_CANCELED);
 					SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(this);
 					if(settings.getBoolean(getString(R.string.salir), false) || settings.getBoolean(getString(R.string.home), false) || settings.getBoolean(getString(R.string.saltar), false))
 						finish();
-				}
 			}
 		}
 		
@@ -360,14 +360,7 @@ public class CamaraActivity extends Activity implements SurfaceHolder.Callback{
 			unregisterReceiver(abcd);
 		}
 		
-		private final BroadcastReceiver abcd = new BroadcastReceiver() {
-	        
-			@Override
-	        public void onReceive(Context context, Intent intent) {
-				 detener(false);                            
-	        }
-			
-		};
+
 		
 		public boolean isHomeButtonPressed(){
 			Context context = getApplicationContext();

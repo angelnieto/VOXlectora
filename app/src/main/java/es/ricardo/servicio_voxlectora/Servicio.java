@@ -28,21 +28,13 @@ public class Servicio extends Service {
       // Toast.makeText(this, "Servicio creado", Toast.LENGTH_LONG).show();
 
        String lanzamiento=settings.getString(getString(R.string.lanzamiento), null);
-       if(lanzamiento!=null){ 
-    	   if(getString(R.string.cascos).equals(lanzamiento.trim())){
+       if(lanzamiento!=null && getString(R.string.cascos).equals(lanzamiento.trim())){
 	    	   IntentFilter receiverFilter = new IntentFilter(Intent.ACTION_HEADSET_PLUG);
 	    	   Escuchador e=new Escuchador();
 	    	  
 	    	   registerReceiver( e, receiverFilter );
 	    	   //Toast.makeText(this, "cascos registrados", Toast.LENGTH_LONG).show();
-	       }
 	   }
     }
 	
-	@Override
-	public void onDestroy() {
-	     super.onDestroy();
-	     //Toast.makeText(this, "Servicio destruido", Toast.LENGTH_LONG).show();
-   }
-
 }
