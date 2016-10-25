@@ -2,6 +2,9 @@ package es.ricardo.voxlectora;
 
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.StringEntity;
@@ -17,6 +20,9 @@ import android.content.Context;
 import android.media.MediaPlayer;
 import android.os.AsyncTask;
 
+/**
+ * Clase encargada de llamar al servicio web POST de Google Drive
+ */
 public class TareaAsincrona extends AsyncTask<String, String, Boolean> {
 
 	/** application context. */
@@ -26,10 +32,16 @@ public class TareaAsincrona extends AsyncTask<String, String, Boolean> {
 	String excepcion="";
 	String texto=null;
 	int veces=0;
+    static Logger logger = Logger.getLogger("VOXlectora");
 	
 	//private GoogleAccountCredential credential;
 	//private String URLServidor="https://googledrive.com/host/0B4O65dFE5SPsNGZTR0puWjREWTQ/";
-		
+
+    /**
+     * Constructor con parámetro de la activity llamante
+     *
+     * @param activity
+     */
 	public TareaAsincrona(ResultadoActivity activity) {
 		this.context = activity.getApplicationContext();
 		this.activity=activity;
@@ -93,18 +105,25 @@ public class TareaAsincrona extends AsyncTask<String, String, Boolean> {
 	        }
 		} catch (Exception e) {
 			error=R.raw.error_drive;
-			if(e!=null)	 
-				excepcion+=" "+e.getMessage();
-			else
-				excepcion+=" ";
+			excepcion+=" "+e.getMessage();
+
+            logger.log(Level.SEVERE,e.getMessage(),e);
+
              return false;
          }
 		 return true;
      }
 
 	@Override
-	protected void onProgressUpdate(String... values) {   }
+	protected void onProgressUpdate(String... values) {
+        //Método no necesario
+    }
 
+    /**
+     * Mostrador de mensajes emergentes
+     *
+     * @param toast
+     */
 	 public void showToast(final String toast) {
 	        activity.showToast(toast);
 	  }
@@ -178,9 +197,10 @@ public class TareaAsincrona extends AsyncTask<String, String, Boolean> {
 		}
 		
 		private String getImagenBase64() throws IOException{
-			java.io.File imagen = new java.io.File(CamaraActivity.directorio.getPath());
+			CamaraActivity cActivity = CamaraActivity.getInstance();
+			java.io.File imagen = new java.io.File(cActivity.getDirectorio().getPath());
 			FileInputStream fin = new FileInputStream(imagen);
-			byte fileContent[] = new byte[(int)imagen.length()];
+			byte[] fileContent = new byte[(int)imagen.length()];
 			
 			int offset = 0;
 			while ( offset < fileContent.length ) {

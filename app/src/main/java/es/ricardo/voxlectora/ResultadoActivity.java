@@ -4,8 +4,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
-import java.util.Timer;
-import java.util.TimerTask;
 
 import es.ricardo.voxlectora.TareaAsincrona;
 import android.media.MediaPlayer;
@@ -44,6 +42,9 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
+/**
+ * Clase encargada de la gestión de la Activity de la pantalla de texto descodificado
+ */
 public class ResultadoActivity extends Activity implements TextToSpeech.OnInitListener, OnGesturePerformedListener{
 
 	static final int ACTION_VALUE=1;
@@ -57,6 +58,22 @@ public class ResultadoActivity extends Activity implements TextToSpeech.OnInitLi
 	MediaPlayer mp;
 	private TareaAsincrona tareaAsincrona=null;
 	private boolean soportaBarraTitulo=false;
+
+    private final BroadcastReceiver abcd = new BroadcastReceiver() {
+
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(ResultadoActivity.this);
+            SharedPreferences.Editor editor = settings.edit();
+            editor.putBoolean(getString(R.string.salir), true);
+            editor.commit();
+
+            ResultadoActivity.this.setResult(RESULT_CANCELED);
+
+            finish();
+        }
+
+    };
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState){
@@ -170,7 +187,12 @@ public class ResultadoActivity extends Activity implements TextToSpeech.OnInitLi
 		tv.setTextColor(getResources().getColor(R.color.morado));
 		tv.setText(texto);
 	}
-	
+
+    /**
+     * Método llamado al iniciarse el sintetizador de voz
+     *
+     * @param status
+     */
 	public void onInit(int status) {
 		
 		 if (status == TextToSpeech.SUCCESS) {
@@ -181,7 +203,7 @@ public class ResultadoActivity extends Activity implements TextToSpeech.OnInitLi
 					
 					@Override
 					public void onUtteranceCompleted(String utteranceId) {
-						 if (getString(R.string.fin).equals(utteranceId)) 
+						 if (getString(R.string.fin).equals(utteranceId))
 							 habilitarGestos();
 					}
 				};
@@ -189,12 +211,20 @@ public class ResultadoActivity extends Activity implements TextToSpeech.OnInitLi
 	            tts.setOnUtteranceCompletedListener(ttsListener);
 	            
 	            String texto=tv.getText().toString();
-	            if(texto!=null && !"".equals(texto.trim()) && !getString(R.string.nada).equals(texto.trim()) && !getString(R.string.limite).equals(texto.trim()) && !getString(R.string.conectando).equals(texto.trim()) && !getString(R.string.error).equals(texto.trim()))
+	            if(checkTextIsNotNull(texto) && checkImagenDescodificada(texto))
 	            	decirMensaje(texto);
 	        }
 	}
-		
-	private void establecerFuente() {
+
+    private boolean checkImagenDescodificada(String texto) {
+        return !getString(R.string.nada).equals(texto.trim()) && !getString(R.string.limite).equals(texto.trim()) && !getString(R.string.conectando).equals(texto.trim()) && !getString(R.string.error).equals(texto.trim());
+    }
+
+    private boolean checkTextIsNotNull(String texto) {
+        return texto != null && !"".equals(texto.trim());
+    }
+
+    private void establecerFuente() {
 		WindowManager windowManager =  (WindowManager) getSystemService(WINDOW_SERVICE);
     	Rect pantalla=new Rect();
     	windowManager.getDefaultDisplay().getRectSize(pantalla);
@@ -245,18 +275,21 @@ public class ResultadoActivity extends Activity implements TextToSpeech.OnInitLi
 
     @Override
     protected void onActivityResult(final int requestCode, final int resultCode, final Intent data) {
-      switch (requestCode) {
-	      case ACTION_VALUE:
-				if(resultCode==RESULT_CANCELED){
+      if(requestCode == ACTION_VALUE && resultCode==RESULT_CANCELED){
 					SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(this);
 				    if(settings.getBoolean(getString(R.string.salir), false) || settings.getBoolean(getString(R.string.home), false) || settings.getBoolean(getString(R.string.saltar), false))
 				    	salir();
-				}
-		   break;
+	  }
 
-        }
+
+
     }
-     
+
+    /**
+     * Método que muestra un mensaje emergente
+     *
+     * @param toast
+     */
   	 public void showToast(final String toast) {
 	  	    runOnUiThread(new Runnable() {
 		  	      @Override
@@ -267,7 +300,7 @@ public class ResultadoActivity extends Activity implements TextToSpeech.OnInitLi
   	  }
   	 
 		private void decirMensaje(String texto) {
-			HashMap<String, String> secuenciaHablada = new HashMap<String,String>();
+			HashMap<String, String> secuenciaHablada = new HashMap<>();
 			secuenciaHablada.put(TextToSpeech.Engine.KEY_PARAM_UTTERANCE_ID,getString(R.string.fin));
 			tts.speak(arreglar(texto), TextToSpeech.QUEUE_FLUSH, secuenciaHablada);
 		}
@@ -277,7 +310,7 @@ public class ResultadoActivity extends Activity implements TextToSpeech.OnInitLi
 			
 			 ArrayList<Prediction> predictions = libreriaGestos.recognize(gesture);
 				
-			if (predictions.size() > 0 && predictions.get(0).score > 5.0) {
+			if (!predictions.isEmpty() && predictions.get(0).score > 5.0) {
 				String result = predictions.get(0).name;
 				
 				if (getString(R.string.horario).equalsIgnoreCase(result) || getString(R.string.horizontal).equalsIgnoreCase(result) || getString(R.string.vaiven).equalsIgnoreCase(result) || getString(R.string.c).equalsIgnoreCase(result))
@@ -320,8 +353,9 @@ public class ResultadoActivity extends Activity implements TextToSpeech.OnInitLi
 		}
 		
 	private void salir(){
-	       if(mp!=null)
-	    	   pararAudio();
+	       if(mp!=null) {
+			   pararAudio();
+		   }
 	        mp = MediaPlayer.create(ResultadoActivity.this, R.raw.salir);
 			mp.setOnCompletionListener(new OnCompletionListener() {
 
@@ -349,7 +383,7 @@ public class ResultadoActivity extends Activity implements TextToSpeech.OnInitLi
 				SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(this);
 		        String textoAlmacenado=settings.getString(getString(R.string.texto), null);
 		        
-		        if(textoAlmacenado!=null && !"".equals(textoAlmacenado.trim()))
+		        if(checkTextIsNotNull(textoAlmacenado))
 					mostrarMensaje(textoAlmacenado);
 				else
 					mostrarMensaje(getString(R.string.nada));
@@ -378,7 +412,7 @@ public class ResultadoActivity extends Activity implements TextToSpeech.OnInitLi
 			  mp.start();
 		}
 		
-		private void sinResultados(int mensajeTexto,int mensajeVoz){
+		void sinResultados(int mensajeTexto,int mensajeVoz){
 			mostrarMensaje(getString(mensajeTexto));
 			mp = MediaPlayer.create(this, mensajeVoz);
 			
@@ -417,22 +451,6 @@ public class ResultadoActivity extends Activity implements TextToSpeech.OnInitLi
 			}
 		}
 		
-		private final BroadcastReceiver abcd = new BroadcastReceiver() {
-	        
-			@Override
-	        public void onReceive(Context context, Intent intent) {
-				SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(ResultadoActivity.this);
-				SharedPreferences.Editor editor = settings.edit();
-			    editor.putBoolean(getString(R.string.salir), true);
-			    editor.commit();
-			     
-			    ResultadoActivity.this.setResult(RESULT_CANCELED);
-				
-				finish();                                   
-	        }
-			
-		};
-		
 		public boolean isHomeButtonPressed(){
 			Context context = getApplicationContext();
 	        ActivityManager am = (ActivityManager) context.getSystemService(Context.ACTIVITY_SERVICE);
@@ -445,7 +463,8 @@ public class ResultadoActivity extends Activity implements TextToSpeech.OnInitLi
 	        return false;
 		}
 		
-	    private String arreglar(String texto){
+	    private String arreglar(String mensaje){
+            String texto = mensaje;
 			texto=texto.replaceAll(" I ", " Primero ");
 			texto=texto.replaceAll(" II ", " Segunda ");
 			texto=texto.replaceAll(" Il ", " Segunda ");

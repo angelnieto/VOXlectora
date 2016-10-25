@@ -8,6 +8,9 @@ import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
 import android.widget.Toast;
 
+/**
+ * Clase que escucha el evento de extracción de los cascos
+ */
 public class Escuchador extends BroadcastReceiver {
 	
 	private boolean centinela=false;

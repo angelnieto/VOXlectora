@@ -6,9 +6,12 @@ import android.app.ActivityManager;
 import android.app.ActivityManager.RunningTaskInfo;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import android.media.MediaPlayer;
 import android.net.Uri;
@@ -32,7 +35,6 @@ import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Surface;
 import android.view.SurfaceHolder;
@@ -44,16 +46,21 @@ import android.view.Window;
 import android.view.WindowManager;
 import android.widget.Button;
 
+/**
+ * Activity encargada del manejo de la captura de las fotografías
+ */
 public class CamaraActivity extends Activity implements SurfaceHolder.Callback{
 	
 	static final int ACTION_VALUE=1;
-	static Uri directorio;
+	private Uri directorio;
 		
 	private Camera miCamara;
 	private Button takePicture;
 	private MediaPlayer mp;
 	private String gradosARotar = "0";
-	private float coordenadaY,coordenadaX;
+	private float coordenadaY;
+
+    private float coordenadaX;
 	
 	private final BroadcastReceiver abcd = new BroadcastReceiver() {
         
@@ -63,12 +70,30 @@ public class CamaraActivity extends Activity implements SurfaceHolder.Callback{
         }
 		
 	};
+
+	static Logger logger = Logger.getLogger("VOXlectora");
+    static CamaraActivity instance = null;
+
+    public static CamaraActivity getInstance() {
+        if(instance == null){
+            instance = new CamaraActivity();
+        }
+        return instance;
+    }
+
+    public Uri getDirectorio() {
+        return directorio;
+    }
+
+    public void setDirectorio(Uri directorio) {
+        this.directorio = directorio;
+    }
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		
-		directorio=getUriArchivoImagen();
+		setDirectorio(getUriArchivoImagen());
 		
 		SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(this);
 		
@@ -122,10 +147,14 @@ public class CamaraActivity extends Activity implements SurfaceHolder.Callback{
 			            	    miCamara.setDisplayOrientation(180);
 			            	gradosARotar(lRotation); 
 			            break;
+						default:
+							break;
 		            }
 				}
-				
-				public void onAccuracyChanged(Sensor sensor, int accuracy) {	}
+
+				public void onAccuracyChanged(Sensor sensor, int accuracy) {
+					//method not tested
+				}
 			};
 			
 			//El sensor es el que determina el volteado de la previsualización en pantalla 
@@ -172,6 +201,14 @@ public class CamaraActivity extends Activity implements SurfaceHolder.Callback{
         	gradosARotar="180";
 	}
 
+	/**
+	 * Método llamado cuando la pantalla cambia a modo cámara
+	 *
+	 * @param holder
+	 * @param format
+	 * @param width
+     * @param height
+     */
 	public void surfaceChanged(SurfaceHolder holder, int format, int width, int height) {
 
 		try {
@@ -190,7 +227,7 @@ public class CamaraActivity extends Activity implements SurfaceHolder.Callback{
 			takePicture.setEnabled(false);
 			mp=MediaPlayer.create(CamaraActivity.this, R.raw.error_camara);
 			mp.start();
-			e.printStackTrace();
+			logger.log(Level.SEVERE,e.getMessage(),e);
 		}
 	}
 	
@@ -212,6 +249,11 @@ public class CamaraActivity extends Activity implements SurfaceHolder.Callback{
 	    return result;
 	}
 
+    /**
+     * Método que se llama al cargar la imagen de previsualización
+     *
+     * @param holder
+     */
 	public void surfaceCreated(SurfaceHolder holder) {
 			miCamara = Camera.open();
 			
@@ -220,7 +262,7 @@ public class CamaraActivity extends Activity implements SurfaceHolder.Callback{
             mp.start();
 	}
 
-	private class AutoFocalizador implements Camera.AutoFocusCallback {
+    private class AutoFocalizador implements Camera.AutoFocusCallback {
 		
 		@Override
 	    public void onAutoFocus(boolean success, Camera camera) {
@@ -249,12 +291,11 @@ public class CamaraActivity extends Activity implements SurfaceHolder.Callback{
 				
 				void done(byte[] tempdata){
 					
-					Exception excepcion=null;
-					
 					String imageFilePath = getUriArchivoImagen().getPath();
 
+					FileOutputStream out = null;
 		           	try {
-					       FileOutputStream out = new FileOutputStream(imageFilePath);
+					       out = new FileOutputStream(imageFilePath);
 		           		
 					       Options options = new Options();
 					       options.inJustDecodeBounds = true;
@@ -279,24 +320,28 @@ public class CamaraActivity extends Activity implements SurfaceHolder.Callback{
 					       Bitmap resizedBitmap = Bitmap.createBitmap(bmp, 0, 0, bmp.getWidth(),bmp.getHeight(), matrix, false);
 					        
 					       resizedBitmap.compress(Bitmap.CompressFormat.JPEG, 100, out);
-				           out.close();  
-					} catch (Exception e) {
-							mp=MediaPlayer.create(CamaraActivity.this, R.raw.error_captura);
-							mp.start();
-					        excepcion=e;
+
+                            //Borro el texto del procesamiento anterior
+                            SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(CamaraActivity.this);
+                            SharedPreferences.Editor editor = settings.edit();
+                            editor.remove(getString(R.string.texto));
+                            editor.commit();
+
+                         //Llamo a la siguiente pantalla
+                         Intent results = new Intent(CamaraActivity.this, ResultadoActivity.class);
+                         startActivityForResult(results, ACTION_VALUE);
+				    } catch (FileNotFoundException e) {
+				   			mp=MediaPlayer.create(CamaraActivity.this, R.raw.error_captura);
+				   			mp.start();
+                            logger.log(Level.SEVERE,e.getMessage(),e);
+				   	 }finally{
+						if(out != null){
+							try {
+								out.close();
+							} catch( IOException e ){logger.log(Level.SEVERE,e.getMessage(),e);}
+						}
 					}
-					
-		           	if(excepcion==null){
-			           	//Borro el texto del procesamiento anterior
-						SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(CamaraActivity.this);
-						SharedPreferences.Editor editor = settings.edit();
-						editor.remove(getString(R.string.texto));
-						editor.commit();
-						
-						//Llamo a la siguiente pantalla
-				        Intent results = new Intent(CamaraActivity.this, ResultadoActivity.class);
-				    	startActivityForResult(results, ACTION_VALUE);
-		           	}
+
 				}
 			
 			};
@@ -308,6 +353,11 @@ public class CamaraActivity extends Activity implements SurfaceHolder.Callback{
 	    }
 	}
 
+    /**
+     * Método que se llama al quitar la previsualización de la cámara en pantalla
+     *
+     * @param holder
+     */
 	public void surfaceDestroyed(SurfaceHolder holder) {
 		miCamara.stopPreview();
 		miCamara.release();
@@ -330,7 +380,7 @@ public class CamaraActivity extends Activity implements SurfaceHolder.Callback{
 	    return new File(mediaStorageDir.getPath() + File.separator + getString(R.string.nombre_imagen));
 	}
 
-	   //Método una vez se vuelve a esta ventana
+	   // Método una vez se vuelve a esta ventana
 		protected void onActivityResult(int requestCode,int resultCode,Intent data){
 			if(requestCode == ACTION_VALUE && resultCode==RESULT_CANCELED){
 					setResult(RESULT_CANCELED);

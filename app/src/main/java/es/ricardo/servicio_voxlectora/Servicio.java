@@ -8,6 +8,9 @@ import android.content.SharedPreferences;
 import android.os.IBinder;
 import android.preference.PreferenceManager;
 
+/**
+ *  Clase que lanza el escuchador de eventos al iniciar el SO Android
+ */
 public class Servicio extends Service {
 
 	@Override
