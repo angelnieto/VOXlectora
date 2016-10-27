@@ -59,7 +59,6 @@ public class CamaraActivity extends Activity implements SurfaceHolder.Callback{
 	private MediaPlayer mp;
 	private String gradosARotar = "0";
 	private float coordenadaY;
-
     private float coordenadaX;
 	
 	private final BroadcastReceiver abcd = new BroadcastReceiver() {
