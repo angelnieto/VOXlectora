@@ -38,7 +38,7 @@
     <string name="back">BACK</string>
     <string name="cascosAnterior">cascosAnterior</string>
     <string name="saltar">saltar</string>
-    <string name="host">http://voxlectoraws-ciudadcivica.rhcloud.com/VOXlectoraWS/Autenticador/post</string>
+    <string name="host">http://192.168.43.125:8080/autenticador</string>
     <string name="type">content-type</string>
     <string name="json">application/json</string>
     <string name="parametroEntrada1">esSAD</string>

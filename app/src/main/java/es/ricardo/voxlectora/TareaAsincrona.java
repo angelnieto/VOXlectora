@@ -1,5 +1,6 @@
 package es.ricardo.voxlectora;
 
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.logging.Level;
@@ -15,7 +16,6 @@ import org.apache.http.util.EntityUtils;
 import org.json.JSONObject;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
-import es.ricardo.voxlectora.CamaraActivity;
 import android.content.Context;
 import android.media.MediaPlayer;
 import android.os.AsyncTask;
@@ -74,9 +74,6 @@ public class TareaAsincrona extends AsyncTask<String, String, Boolean> {
 			HttpConnectionParams.setConnectionTimeout(httpParameters, 50000);
 			 
 		    HttpPost post = new HttpPost(context.getString(R.string.host));
-		    //HttpPost post = new HttpPost("http://192.168.2.102:9080/VOXlectoraWS/Autenticador/post");
-			//HttpPost post = new HttpPost("http://192.168.0.197:9080/VOXlectoraWS_old/Autenticador/post");
-			//HttpPost post = new HttpPost("http://192.168.1.40:9080/VOXlectoraWS/Autenticador/post");
 		    post.setHeader(context.getString(R.string.type), context.getString(R.string.json));
 		    JSONObject dato = new JSONObject();
 		    dato.put(context.getString(R.string.parametroEntrada1), context.getString(R.string.esSAD));
@@ -171,6 +168,7 @@ public class TareaAsincrona extends AsyncTask<String, String, Boolean> {
 	      Drive service = new Drive.Builder(httpTransport, jsonFactory,null).setHttpRequestInitializer(credential).build();
 	           
 	      return service;
+
 	    }
 	    
 	    private java.io.File getTempPkc12File() throws IOException {
@@ -197,8 +195,8 @@ public class TareaAsincrona extends AsyncTask<String, String, Boolean> {
 		}
 		
 		private String getImagenBase64() throws IOException{
-			CamaraActivity cActivity = CamaraActivity.getInstance();
-			java.io.File imagen = new java.io.File(cActivity.getDirectorio().getPath());
+			File mediaStorageDir = new File(context.getFilesDir(), context.getString(R.string.raizMovil));
+			java.io.File imagen = new java.io.File(mediaStorageDir.getPath() + File.separator + context.getString(R.string.nombre_imagen));
 			FileInputStream fin = new FileInputStream(imagen);
 			byte[] fileContent = new byte[(int)imagen.length()];
 			

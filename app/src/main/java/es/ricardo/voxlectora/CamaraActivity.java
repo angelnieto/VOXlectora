@@ -71,28 +71,10 @@ public class CamaraActivity extends Activity implements SurfaceHolder.Callback{
 	};
 
 	static Logger logger = Logger.getLogger("VOXlectora");
-    static CamaraActivity instance = null;
 
-    public static CamaraActivity getInstance() {
-        if(instance == null){
-            instance = new CamaraActivity();
-        }
-        return instance;
-    }
-
-    public Uri getDirectorio() {
-        return directorio;
-    }
-
-    public void setDirectorio(Uri directorio) {
-        this.directorio = directorio;
-    }
-	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		
-		setDirectorio(getUriArchivoImagen());
 		
 		SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(this);
 		
