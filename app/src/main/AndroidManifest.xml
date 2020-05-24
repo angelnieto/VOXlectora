@@ -71,11 +71,11 @@
                 <action android:name="android.intent.action.BOOT_COMPLETED" >
                     <!--  ////		DESCOMENTAR PARA DEPURAR		//////
                            <action android:name="Escuchador">     -->
-                    <category android:name="android.intent.category.HOME" ></category>
-                </action>
-            </intent-filter>
-        </receiver>
+                   </action>
+                   <category android:name="android.intent.category.HOME"></category>
+               </intent-filter>
+           </receiver>
 
 
-    </application>
-</manifest>
+       </application>
+   </manifest>
