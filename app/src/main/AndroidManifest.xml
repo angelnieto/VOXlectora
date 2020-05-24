@@ -67,15 +67,16 @@
             android:name="es.ricardo.servicio_voxlectora.Escuchador"
             android:enabled="true" >
 
-            <intent-filter >
-                <action android:name="android.intent.action.BOOT_COMPLETED" >
+            <intent-filter>
+                <action android:name="android.intent.action.BOOT_COMPLETED" />
                     <!--  ////		DESCOMENTAR PARA DEPURAR		//////
-                           <action android:name="Escuchador">     -->
-                   </action>
+                           <action android:name="Escuchador"/>     -->
+
                    <category android:name="android.intent.category.HOME"></category>
                </intent-filter>
-           </receiver>
+         </receiver>
 
+        <uses-library android:name="org.apache.http.legacy" android:required="false"/>
 
        </application>
    </manifest>
