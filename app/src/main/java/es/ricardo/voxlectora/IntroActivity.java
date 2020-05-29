@@ -17,6 +17,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
+import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup.LayoutParams;
@@ -33,10 +34,10 @@ import android.widget.VideoView;
 public class IntroActivity extends Activity{
 	
 	static final int ACTION_VALUE=1;
+    private final String TAG = "IntroActivity";
 
 	private Button irPrevisualizacion;
 	private Window window=null;
-	Thread hiloAsincrono1=null;
 	VideoView v=null;
 	boolean continuar=false;
 	boolean soportaBarraTitulo=false;
@@ -56,6 +57,8 @@ public class IntroActivity extends Activity{
 	@Override
 	protected void onCreate(Bundle savedInstanceState){
 		super.onCreate(savedInstanceState);
+
+		Log.i(TAG, "onCreate()");
 		
 		soportaBarraTitulo = requestWindowFeature(Window.FEATURE_CUSTOM_TITLE);
 		
@@ -71,13 +74,15 @@ public class IntroActivity extends Activity{
 		
 		////		DESCOMENTAR PARA DEPURAR		//////
 		//this.sendBroadcast(new Intent("Escuchador"));
-		
+
 		registerReceiver(abcd, new IntentFilter("1"));
 	}
 		
 	@Override
 	protected void onResume() {
 		super.onResume();
+
+        Log.i(TAG, "onResume()");
 		
 		SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(this);
 		SharedPreferences.Editor editor = settings.edit();
@@ -89,9 +94,16 @@ public class IntroActivity extends Activity{
 		//editor.remove("saltar");
 		
 		editor.commit();
+
+		Log.i(TAG, "salir = " + settings.getBoolean(getString(R.string.salir), false) +
+				" , saltar = " + settings.getBoolean(getString(R.string.saltar), false) +
+				" , checkCascosExtraídos = " + checkCascosExtraidos(settings) +
+				" , HOME = " + settings.getBoolean(getString(R.string.home), false) +
+				" , cascosAnterior = " + settings.getBoolean(getString(R.string.cascosAnterior), false) +
+				" , cascos = " + settings.getBoolean(getString(R.string.cascos), false));
 		
 		if(!settings.getBoolean(getString(R.string.salir), false) && !settings.getBoolean(getString(R.string.saltar), false)){
-			if(!checkCascosEsxtraidos(settings)
+			if(!checkCascosExtraidos(settings)
 				&& !(settings.getBoolean(getString(R.string.home), false) && settings.getBoolean(getString(R.string.cascosAnterior), false) && !settings.getBoolean(getString(R.string.cascos), false))){
 				 
 		    	//registro la variable de comunicación con el Escuchador
@@ -174,7 +186,7 @@ public class IntroActivity extends Activity{
 		editor.commit();
 	}
 
-    private boolean checkCascosEsxtraidos(SharedPreferences settings) {
+    private boolean checkCascosExtraidos(SharedPreferences settings) {
         return settings.getBoolean(getString(R.string.home), false) && settings.getBoolean(getString(R.string.cascos), false) && !settings.getBoolean(getString(R.string.cascosAnterior), false);
     }
 
@@ -258,6 +270,8 @@ public class IntroActivity extends Activity{
     @Override
 	protected void onDestroy(){
 		super.onDestroy();
+
+        Log.i(TAG, "onDestroy()");
 		
 		//Borro la variable centinela
 		SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(this);
