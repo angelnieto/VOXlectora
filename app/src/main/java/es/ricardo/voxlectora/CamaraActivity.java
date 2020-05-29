@@ -35,6 +35,7 @@ import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Surface;
 import android.view.SurfaceHolder;
@@ -71,8 +72,6 @@ public class CamaraActivity extends Activity implements SurfaceHolder.Callback{
         }
 		
 	};
-
-	static Logger logger = Logger.getLogger("VOXlectora");
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -119,20 +118,21 @@ public class CamaraActivity extends Activity implements SurfaceHolder.Callback{
 	                WindowManager lWindowManager =  (WindowManager) getSystemService(WINDOW_SERVICE);
 	               
 		            int lRotation = lWindowManager.getDefaultDisplay().getRotation();
-		            switch(lRotation) {
-			            case Surface.ROTATION_90:
-			            	if(miCamara!=null)
-			            	    miCamara.setDisplayOrientation(0); 
-			            	gradosARotar(lRotation);
-			            break;
-			            case Surface.ROTATION_270:
-			            	if(miCamara!=null)
-			            	    miCamara.setDisplayOrientation(180);
-			            	gradosARotar(lRotation); 
-			            break;
-						default:
+					switch (lRotation) {
+						case Surface.ROTATION_90:
+							if (miCamara != null)
+								miCamara.setDisplayOrientation(0);
+							gradosARotar(lRotation);
 							break;
-		            }
+						case Surface.ROTATION_270:
+							if (miCamara != null)
+								miCamara.setDisplayOrientation(180);
+							gradosARotar(lRotation);
+							break;
+						case Surface.ROTATION_180:
+						case Surface.ROTATION_0:
+							break;
+					}
 				}
 
 				public void onAccuracyChanged(Sensor sensor, int accuracy) {
@@ -210,7 +210,7 @@ public class CamaraActivity extends Activity implements SurfaceHolder.Callback{
 			takePicture.setEnabled(false);
 			mp=MediaPlayer.create(CamaraActivity.this, R.raw.error_camara);
 			mp.start();
-			logger.log(Level.SEVERE,e.getMessage(),e);
+			Log.e(getClass().getName(), e.getMessage(),e);
 		}
 	}
 	
@@ -316,12 +316,14 @@ public class CamaraActivity extends Activity implements SurfaceHolder.Callback{
 				    } catch (FileNotFoundException e) {
 				   			mp=MediaPlayer.create(CamaraActivity.this, R.raw.error_captura);
 				   			mp.start();
-                            logger.log(Level.SEVERE,e.getMessage(),e);
+                        Log.e(getClass().getName(), e.getMessage(),e);
 				   	 }finally{
 						if(out != null){
 							try {
 								out.close();
-							} catch( IOException e ){logger.log(Level.SEVERE,e.getMessage(),e);}
+							} catch( IOException e ){
+                                Log.e(getClass().getName(), e.getMessage(),e);
+							}
 						}
 					}
 

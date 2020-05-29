@@ -2,10 +2,8 @@ package es.ricardo.voxlectora;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Locale;
 
-import es.ricardo.voxlectora.TareaAsincrona;
 import es.ricardo.voxlectora.utils.Utils;
 
 import android.media.MediaPlayer;
@@ -13,10 +11,7 @@ import android.media.MediaPlayer.OnCompletionListener;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.app.Activity;
-import android.app.ActivityManager;
-import android.app.ActivityManager.RunningTaskInfo;
 import android.content.BroadcastReceiver;
-import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
@@ -105,7 +100,7 @@ public class ResultadoActivity extends Activity implements TextToSpeech.OnInitLi
 			
 			if(tts==null)
 				tts = new TextToSpeech(this, this);
-	    	tts.setSpeechRate(Float.valueOf("0.7"));
+	    	tts.setSpeechRate(Float.parseFloat("0.7"));
 						
 		    String texto=settings.getString(getString(R.string.texto), null);
 		    
@@ -381,7 +376,7 @@ public class ResultadoActivity extends Activity implements TextToSpeech.OnInitLi
 		
 		private void habilitarGestos(){
 			
-			if(tv.getText()==null || "".equals(tv.getText())){
+			if(tv.getText()==null || "".contentEquals(tv.getText())){
 				SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(this);
 		        String textoAlmacenado=settings.getString(getString(R.string.texto), null);
 		        

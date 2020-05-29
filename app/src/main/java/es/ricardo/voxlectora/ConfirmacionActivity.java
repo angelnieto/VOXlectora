@@ -45,7 +45,6 @@ public class ConfirmacionActivity extends Activity implements OnGesturePerformed
 
 	private TextView tv;
 	
-	private LayoutInflater myInflater=null;
 	GestureOverlayView gestosView;
 	GestureLibrary libreriaGestos;
 	
@@ -87,8 +86,7 @@ public class ConfirmacionActivity extends Activity implements OnGesturePerformed
             getWindow().setFeatureInt(Window.FEATURE_CUSTOM_TITLE, R.layout.layout_titulo);
         }
 		//Agrego la capa para detectar gestos
-		 myInflater=LayoutInflater.from(this);
-		 gestosView=(GestureOverlayView) myInflater.inflate(R.layout.capa_gestos, null);
+		 gestosView=(GestureOverlayView) View.inflate(getApplicationContext(), R.layout.capa_gestos, null);
 		 libreriaGestos = GestureLibraries.fromRawResource(this, R.raw.gestures);
 		 ConfirmacionActivity.this.addContentView(gestosView, new LayoutParams(LayoutParams.MATCH_PARENT,LayoutParams.MATCH_PARENT));
 		 
