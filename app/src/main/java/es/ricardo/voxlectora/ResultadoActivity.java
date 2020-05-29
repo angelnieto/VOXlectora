@@ -6,6 +6,8 @@ import java.util.List;
 import java.util.Locale;
 
 import es.ricardo.voxlectora.TareaAsincrona;
+import es.ricardo.voxlectora.utils.Utils;
+
 import android.media.MediaPlayer;
 import android.media.MediaPlayer.OnCompletionListener;
 import android.os.Bundle;
@@ -249,7 +251,7 @@ public class ResultadoActivity extends Activity implements TextToSpeech.OnInitLi
         	mp.stop();
         if(tareaAsincrona!=null)
 			tareaAsincrona.cancel(true);
-        if(isHomeButtonPressed()){
+        if(Utils.isHomeButtonPressed(getApplicationContext())){
         	SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(this);
 			SharedPreferences.Editor editor = settings.edit();
 		    editor.putBoolean(getString(R.string.home), true);
@@ -449,18 +451,6 @@ public class ResultadoActivity extends Activity implements TextToSpeech.OnInitLi
 		        	findViewById(R.id.rayas1).setVisibility(View.VISIBLE);
 		        }
 			}
-		}
-		
-		public boolean isHomeButtonPressed(){
-			Context context = getApplicationContext();
-	        ActivityManager am = (ActivityManager) context.getSystemService(Context.ACTIVITY_SERVICE);
-	        List<RunningTaskInfo> taskInfo = am.getRunningTasks(1);
-	        if (!taskInfo.isEmpty()) {
-	        	ComponentName topActivity = taskInfo.get(0).topActivity; 
-	        	if (!topActivity.getPackageName().equals(context.getPackageName())) 
-	        		return true;
-	        }
-	        return false;
 		}
 		
 	    private String arreglar(String mensaje){

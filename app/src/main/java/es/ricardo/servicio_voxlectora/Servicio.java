@@ -16,32 +16,30 @@ import android.preference.PreferenceManager;
 import android.support.annotation.RequiresApi;
 import android.support.v4.app.NotificationCompat;
 import android.util.Log;
-import android.widget.Toast;
 
 /**
  *  Clase que lanza el escuchador de eventos de la clavija jack al iniciar el SO Android
  */
 public class Servicio extends Service {
 
-	private static final String TAG = "Servicio";
 	private EscuchadorCascos escuchador = new EscuchadorCascos();
 	SharedPreferences settings;
 
 	@Override
 	public IBinder onBind(Intent arg0) {
-		Log.i(TAG, "onBind()");
+		Log.i(getClass().getName(), "onBind()");
 		return null;
 	}
 
 	@Override
 	public int onStartCommand(Intent intent, int flags, int startId){
-		Log.i(TAG, "onStartCommand(" + intent.getAction() +"," + flags +"," + startId + ")");
+		Log.i(getClass().getName(), "onStartCommand(" + intent.getAction() +"," + flags +"," + startId + ")");
 
 		IntentFilter receiverFilter = new IntentFilter(Intent.ACTION_HEADSET_PLUG);
 
 		registerReceiver( escuchador, receiverFilter );
 //	    Toast.makeText(this, "cascos registrados", Toast.LENGTH_LONG).show();
-		Log.i(TAG, "cascos registrados");
+		Log.i(getClass().getName(), "cascos registrados");
 
 		return START_STICKY;
 	}
@@ -50,7 +48,7 @@ public class Servicio extends Service {
 	public void onCreate() {
        super.onCreate();
 
-		Log.i(TAG, "onCreate()");
+		Log.i(getClass().getName(), "onCreate()");
 
 		settings = PreferenceManager.getDefaultSharedPreferences(this);
        //Recurso del AVE MARÍA       
@@ -59,7 +57,7 @@ public class Servicio extends Service {
    	   editor.remove(getString(R.string.saltar));
    	   editor.commit();
 
-   	   Log.i(TAG, "Servicio creado");
+   	   Log.i(getClass().getName(), "Servicio creado");
 //   	   Toast.makeText(this, "Servicio creado", Toast.LENGTH_LONG).show();
 
 		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
@@ -94,7 +92,7 @@ public class Servicio extends Service {
 
     @Override
 	public void onDestroy() {
-		Log.i(TAG, "onDestroy()");
+		Log.i(getClass().getName(), "onDestroy()");
 
 		super.onDestroy();
 	}

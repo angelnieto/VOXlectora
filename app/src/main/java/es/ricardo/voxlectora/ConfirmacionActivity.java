@@ -36,6 +36,8 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import es.ricardo.voxlectora.utils.Utils;
+
 /**
  * Clase encargada de gestionar la Activity propia de la pantalla de confirmación
  */
@@ -257,7 +259,7 @@ public class ConfirmacionActivity extends Activity implements OnGesturePerformed
 		if(mp!=null && mp.isPlaying())
 			mp.stop();
 		
-		if(isHomeButtonPressed()){
+		if(Utils.isHomeButtonPressed(getApplicationContext())){
         	SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(this);
 			SharedPreferences.Editor editor = settings.edit();
 		    editor.putBoolean(getString(R.string.home), true);
@@ -276,17 +278,5 @@ public class ConfirmacionActivity extends Activity implements OnGesturePerformed
 		
 		unregisterReceiver(abcd);
 	}
-	
-	public boolean isHomeButtonPressed(){
-		Context context = getApplicationContext();
-        ActivityManager am = (ActivityManager) context.getSystemService(Context.ACTIVITY_SERVICE);
-        List<RunningTaskInfo> taskInfo = am.getRunningTasks(1);
-        if (!taskInfo.isEmpty()) {
-        	ComponentName topActivity = taskInfo.get(0).topActivity; 
-        	if (!topActivity.getPackageName().equals(context.getPackageName())) 
-        		return true;
-        }
-        return false;
-	}
- 	 
+
 }

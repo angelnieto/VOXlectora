@@ -17,19 +17,18 @@ import es.ricardo.voxlectora.R;
 public class EscuchadorCascos extends BroadcastReceiver {
 	
 	private boolean centinela=false;
-	private final String TAG = "EscuchadorCascos";
 
 	@Override
 	public void onReceive(Context context, Intent intent) {
 
-		Log.i(TAG, "acción recibida : " + intent.getAction());
+		Log.i(getClass().getName(), "acción recibida : " + intent.getAction());
 
 		SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(context);
 
 		if (intent.getAction().equals(Intent.ACTION_HEADSET_PLUG)) {
 				int state = intent.getIntExtra(context.getString(R.string.estado), -1);
 
-				Log.i(TAG, "state = " + state + " , centinela = " + centinela);
+				Log.i(getClass().getName(), "state = " + state + " , centinela = " + centinela);
 
 				if (state == 0) {
 					if (centinela) {
@@ -44,14 +43,14 @@ public class EscuchadorCascos extends BroadcastReceiver {
 						context.startActivity(i);
 
 						Toast.makeText(context, "Auricular extraído", Toast.LENGTH_SHORT).show();
-						Log.i(TAG, "Auricular extraído");
+						Log.i(getClass().getName(), "Auricular extraído");
 
 						centinela = false;
 					}
 				} else {
 					centinela = true;
 
-					Log.i(TAG, "activity in settings : "+ settings.getInt(context.getString(R.string.activity), 0));
+					Log.i(getClass().getName(), "activity in settings : "+ settings.getInt(context.getString(R.string.activity), 0));
 					switch (settings.getInt(context.getString(R.string.activity), 0)) {
 						case 0:
 						case 1:

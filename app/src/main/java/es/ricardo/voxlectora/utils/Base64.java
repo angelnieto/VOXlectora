@@ -1,9 +1,6 @@
-package es.ricardo.voxlectora;
-
-import android.util.Log;
+package es.ricardo.voxlectora.utils;
 
 import java.io.IOError;
-import java.io.IOException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 

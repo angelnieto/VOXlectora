@@ -46,6 +46,8 @@ import android.view.Window;
 import android.view.WindowManager;
 import android.widget.Button;
 
+import es.ricardo.voxlectora.utils.Utils;
+
 /**
  * Activity encargada del manejo de la captura de las fotografías
  */
@@ -380,7 +382,7 @@ public class CamaraActivity extends Activity implements SurfaceHolder.Callback{
 				mp.release();
 			}
 				
-			if(isHomeButtonPressed())
+			if(Utils.isHomeButtonPressed(getApplicationContext()))
 				detener(true);
 		}
 		
@@ -390,30 +392,16 @@ public class CamaraActivity extends Activity implements SurfaceHolder.Callback{
 			
 			unregisterReceiver(abcd);
 		}
-		
 
-		
-		public boolean isHomeButtonPressed(){
-			Context context = getApplicationContext();
-	        ActivityManager am = (ActivityManager) context.getSystemService(Context.ACTIVITY_SERVICE);
-	        List<RunningTaskInfo> taskInfo = am.getRunningTasks(1);
-	        if (!taskInfo.isEmpty()) {
-	        	ComponentName topActivity = taskInfo.get(0).topActivity; 
-	        	if (!topActivity.getPackageName().equals(context.getPackageName())) 
-	        		return true;
-	        }
-	        return false;
-		}
-		
 		private void detener(boolean botonHome){
 			SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(CamaraActivity.this);
 			SharedPreferences.Editor editor = settings.edit();
 		
-			if(botonHome)
+			if(botonHome) {
 				editor.putBoolean(getString(R.string.home), true);
-			else if(!settings.getBoolean(getString(R.string.cascosAnterior), false))
-					editor.putBoolean(getString(R.string.salir), true);
-			
+			} else if(!settings.getBoolean(getString(R.string.cascosAnterior), false)) {
+				editor.putBoolean(getString(R.string.salir), true);
+			}
 			editor.commit();
 		    setResult(RESULT_CANCELED);
 			

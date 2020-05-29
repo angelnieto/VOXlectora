@@ -1,6 +1,5 @@
 package es.ricardo.voxlectora;
 
-import java.util.List;
 import android.hardware.Camera.CameraInfo;
 import android.media.MediaPlayer;
 import android.media.MediaPlayer.OnCompletionListener;
@@ -9,10 +8,7 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.app.Activity;
-import android.app.ActivityManager;
-import android.app.ActivityManager.RunningTaskInfo;
 import android.content.BroadcastReceiver;
-import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
@@ -21,11 +17,12 @@ import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup.LayoutParams;
-import android.view.LayoutInflater;
 import android.view.Window;
 import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.VideoView;
+
+import es.ricardo.voxlectora.utils.Utils;
 
 /**
  *  Clase encargada de manejar la Activity del video introductorio
@@ -34,11 +31,10 @@ import android.widget.VideoView;
 public class IntroActivity extends Activity{
 	
 	static final int ACTION_VALUE=1;
-    private final String TAG = "IntroActivity";
 
 	private Button irPrevisualizacion;
-	private Window window=null;
-	VideoView v=null;
+
+	VideoView v = null;
 	boolean continuar=false;
 	boolean soportaBarraTitulo=false;
 
@@ -48,8 +44,9 @@ public class IntroActivity extends Activity{
 		public void onReceive(Context context, Intent intent) {
 
 			SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(IntroActivity.this);
-			if(!settings.getBoolean(getString(R.string.home), false))
+			if(!settings.getBoolean(getString(R.string.home), false)) {
 				finish();
+			}
 		}
 
 	};
@@ -58,22 +55,21 @@ public class IntroActivity extends Activity{
 	protected void onCreate(Bundle savedInstanceState){
 		super.onCreate(savedInstanceState);
 
-		Log.i(TAG, "onCreate()");
+		Log.i(getClass().getName(), "onCreate()");
 		
 		soportaBarraTitulo = requestWindowFeature(Window.FEATURE_CUSTOM_TITLE);
 		
 		SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(this);
 		SharedPreferences.Editor editor = settings.edit();
 		if(!settings.getBoolean(getString(R.string.escuchador), false)){
-			if(!settings.getBoolean(getString(R.string.back), false))
+			if(!settings.getBoolean(getString(R.string.back), false)) {
 				editor.remove(getString(R.string.cascos));
-		}else
-			editor.putBoolean(getString(R.string.cascos),true);
+			}
+		}else {
+			editor.putBoolean(getString(R.string.cascos), true);
+		}
 		editor.remove(getString(R.string.escuchador));
 		editor.commit();
-		
-		////		DESCOMENTAR PARA DEPURAR		//////
-		//this.sendBroadcast(new Intent("Escuchador"));
 
 		registerReceiver(abcd, new IntentFilter("1"));
 	}
@@ -82,7 +78,7 @@ public class IntroActivity extends Activity{
 	protected void onResume() {
 		super.onResume();
 
-        Log.i(TAG, "onResume()");
+        Log.i(getClass().getName(), "onResume()");
 		
 		SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(this);
 		SharedPreferences.Editor editor = settings.edit();
@@ -91,11 +87,12 @@ public class IntroActivity extends Activity{
 		editor.remove(getString(R.string.veces));
 		editor.remove(getString(R.string.back));
 
+		/////////	Descomentar en caso de que no se inicie la app   ///////
 		//editor.remove("saltar");
 		
 		editor.commit();
 
-		Log.i(TAG, "salir = " + settings.getBoolean(getString(R.string.salir), false) +
+		Log.i(getClass().getName(), "salir = " + settings.getBoolean(getString(R.string.salir), false) +
 				" , saltar = " + settings.getBoolean(getString(R.string.saltar), false) +
 				" , checkCascosExtraídos = " + checkCascosExtraidos(settings) +
 				" , HOME = " + settings.getBoolean(getString(R.string.home), false) +
@@ -109,8 +106,8 @@ public class IntroActivity extends Activity{
 		    	//registro la variable de comunicación con el Escuchador
 				editor.putInt(getString(R.string.activity),1);
 				editor.commit();
-				
-				window = getWindow();
+
+				 Window window = getWindow();
 				 window.addFlags(WindowManager.LayoutParams.FLAG_TURN_SCREEN_ON
 				            + WindowManager.LayoutParams.FLAG_SHOW_WHEN_LOCKED
 				            + WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON
@@ -121,13 +118,12 @@ public class IntroActivity extends Activity{
 				if(soportaBarraTitulo)
 					window.setFeatureInt(Window.FEATURE_CUSTOM_TITLE, R.layout.layout_titulo);
 				
-				LayoutInflater myInflater=LayoutInflater.from(this);
-				View overView=myInflater.inflate(R.layout.segundacapa, null);
+				View overView=View.inflate(getApplicationContext(), R.layout.segundacapa, null);
 				this.addContentView(overView, new LayoutParams(LayoutParams.MATCH_PARENT,LayoutParams.MATCH_PARENT));
 				
-				irPrevisualizacion = (Button) findViewById(R.id.button);
+				irPrevisualizacion = findViewById(R.id.button);
 							
-				v=(VideoView)findViewById(R.id.surfaceIntro);
+				v = findViewById(R.id.surfaceIntro);
 				
 				 if(hasBackCamera()){
 						if(isOnline()){
@@ -166,12 +162,14 @@ public class IntroActivity extends Activity{
 				
 				v.start();
 				
-				if(settings.getBoolean(getString(R.string.cascos), false) && settings.getBoolean(getString(R.string.cascosAnterior), false))
+				if(settings.getBoolean(getString(R.string.cascos), false) && settings.getBoolean(getString(R.string.cascosAnterior), false)) {
 					editor.remove(getString(R.string.home));
-				if(settings.getBoolean(getString(R.string.cascos), false))
-					editor.putBoolean(getString(R.string.cascosAnterior),true);
-				else
+				}
+				if(settings.getBoolean(getString(R.string.cascos), false)) {
+					editor.putBoolean(getString(R.string.cascosAnterior), true);
+				} else {
 					editor.remove(getString(R.string.cascosAnterior));
+				}
 			}else{
 				editor.remove(getString(R.string.home));
 				editor.remove(getString(R.string.cascosAnterior));
@@ -227,7 +225,7 @@ public class IntroActivity extends Activity{
 		if(v!=null && v.isPlaying())
 			v.stopPlayback();
 		
-		if(isHomeButtonPressed()){
+		if(Utils.isHomeButtonPressed(getApplicationContext())){
 			SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(this);
 			SharedPreferences.Editor editor = settings.edit();
 			editor.putBoolean(getString(R.string.home), true);
@@ -262,7 +260,7 @@ public class IntroActivity extends Activity{
     }
 	
 	private boolean isOnline() {
-	    ConnectivityManager cm =(ConnectivityManager) this.getSystemService(this.CONNECTIVITY_SERVICE);
+	    ConnectivityManager cm =(ConnectivityManager) this.getSystemService(CONNECTIVITY_SERVICE);
 
 	    return cm.getActiveNetworkInfo() != null && cm.getActiveNetworkInfo().isConnectedOrConnecting();
 	}
@@ -271,7 +269,7 @@ public class IntroActivity extends Activity{
 	protected void onDestroy(){
 		super.onDestroy();
 
-        Log.i(TAG, "onDestroy()");
+        Log.i(getClass().getName(), "onDestroy()");
 		
 		//Borro la variable centinela
 		SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(this);
@@ -283,19 +281,5 @@ public class IntroActivity extends Activity{
 				
 		unregisterReceiver(abcd);
 	}
-	
 
-	
-	private boolean isHomeButtonPressed(){
-		Context context = getApplicationContext();
-        ActivityManager am = (ActivityManager) context.getSystemService(Context.ACTIVITY_SERVICE);
-        List<RunningTaskInfo> taskInfo = am.getRunningTasks(1);
-        if (!taskInfo.isEmpty()) {
-        	ComponentName topActivity = taskInfo.get(0).topActivity; 
-        	if (!topActivity.getPackageName().equals(context.getPackageName())) 
-        		return true;
-         }
-        return false;
-	}
-	
 }
