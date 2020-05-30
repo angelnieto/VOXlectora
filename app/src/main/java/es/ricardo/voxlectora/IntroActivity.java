@@ -30,18 +30,19 @@ import es.ricardo.voxlectora.utils.Utils;
 
 public class IntroActivity extends Activity{
 	
-	static final int ACTION_VALUE=1;
+	private static final int ACTION_VALUE=1;
 
 	private Button irPrevisualizacion;
 
-	VideoView v = null;
-	boolean continuar=false;
-	boolean soportaBarraTitulo=false;
+	private VideoView v = null;
+	private boolean continuar=false;
+	private boolean soportaBarraTitulo=false;
 
 	private final BroadcastReceiver abcd = new BroadcastReceiver() {
 
 		@Override
 		public void onReceive(Context context, Intent intent) {
+			Log.i(getClass().getName(), "onReceive()");
 
 			SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(IntroActivity.this);
 			if(!settings.getBoolean(getString(R.string.home), false)) {
@@ -188,12 +189,12 @@ public class IntroActivity extends Activity{
         return settings.getBoolean(getString(R.string.home), false) && settings.getBoolean(getString(R.string.cascos), false) && !settings.getBoolean(getString(R.string.cascosAnterior), false);
     }
 
-    void setVideoUri(int IDVideo) {
+    private void setVideoUri(int IDVideo) {
 		Uri uri = Uri.parse("android.resource://"+getPackageName()+"/"+IDVideo);
 		v.setVideoURI(uri);
 	}
 
-	protected void irPrevisualizacion(){
+	private void irPrevisualizacion(){
 		SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(this);
 		SharedPreferences.Editor editor = settings.edit();
 		editor.remove(getString(R.string.home));
@@ -204,7 +205,10 @@ public class IntroActivity extends Activity{
 	}
 	
 	//Método una vez se vuelve a esta ventana
+    @Override
 	protected void onActivityResult(int requestCode,int resultCode,Intent data){
+        Log.i(getClass().getName(), "onActivityResult()");
+
 		if(requestCode == ACTION_VALUE && resultCode==RESULT_CANCELED){
 				SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(this);
 				if(settings.getBoolean(getString(R.string.salir), false))
@@ -221,10 +225,11 @@ public class IntroActivity extends Activity{
 	@Override
 	protected void onPause(){
 		super.onPause();
+		Log.i(getClass().getName(), "onPause()");
 
-		if(v!=null && v.isPlaying())
-			v.stopPlayback();
-		
+		if(v!=null && v.isPlaying()) {
+            v.stopPlayback();
+        }
 		if(Utils.isHomeButtonPressed(getApplicationContext())){
 			SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(this);
 			SharedPreferences.Editor editor = settings.edit();
@@ -234,13 +239,14 @@ public class IntroActivity extends Activity{
 		detener();
 	}
 	
-	protected void detener(){
+	private void detener(){
 		//Borro la variable centinela
 		SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(this);
 		SharedPreferences.Editor editor = settings.edit();
 		if(settings.getBoolean(getString(R.string.salir), false)){
 			editor.remove(getString(R.string.salir));
 			if(!this.isFinishing()){
+			    Log.i(getClass().getName(), "Finalizando la app...");
 				finish();
 			}
 		}
@@ -268,7 +274,6 @@ public class IntroActivity extends Activity{
     @Override
 	protected void onDestroy(){
 		super.onDestroy();
-
         Log.i(getClass().getName(), "onDestroy()");
 		
 		//Borro la variable centinela

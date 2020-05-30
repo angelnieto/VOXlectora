@@ -12,6 +12,7 @@ import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.os.Build;
 import android.os.IBinder;
+import android.os.PowerManager;
 import android.preference.PreferenceManager;
 import android.support.annotation.RequiresApi;
 import android.support.v4.app.NotificationCompat;
@@ -27,7 +28,6 @@ public class Servicio extends Service {
 
 	@Override
 	public IBinder onBind(Intent arg0) {
-		Log.i(getClass().getName(), "onBind()");
 		return null;
 	}
 
@@ -40,6 +40,11 @@ public class Servicio extends Service {
 		registerReceiver( escuchador, receiverFilter );
 //	    Toast.makeText(this, "cascos registrados", Toast.LENGTH_LONG).show();
 		Log.i(getClass().getName(), "cascos registrados");
+
+        PowerManager powerManager = (PowerManager) getSystemService(POWER_SERVICE);
+        PowerManager.WakeLock wakeLock = powerManager.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK,
+                "Servicio::MyWakelockTag");
+        wakeLock.acquire();
 
 		return START_STICKY;
 	}
@@ -83,7 +88,7 @@ public class Servicio extends Service {
 		NotificationCompat.Builder notificationBuilder = new NotificationCompat.Builder(this, NOTIFICATION_CHANNEL_ID);
 		Notification notification = notificationBuilder.setOngoing(true)
 				.setSmallIcon(R.drawable.icono_notificacion)
-				.setContentTitle("VOXlectora está corriendo en segundo plano")
+				.setContentTitle(getString(R.string.contenidoNotificacion))
 				.setPriority(NotificationManager.IMPORTANCE_MIN)
 				.setCategory(Notification.CATEGORY_SERVICE)
 				.build();

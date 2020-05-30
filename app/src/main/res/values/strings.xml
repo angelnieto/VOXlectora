@@ -33,7 +33,6 @@
     <string name="activity">activity</string>
     <string name="paquete">es.ricardo.voxlectora</string>
     <string name="clase">es.ricardo.voxlectora.IntroActivity</string>
-    <string name="servicioLanzamiento">servicioLanzamiento</string>
     <string name="home">HOME</string>
     <string name="back">BACK</string>
     <string name="cascosAnterior">cascosAnterior</string>
@@ -48,5 +47,6 @@
     <string name="parametroSalida2">mensajeError</string>
     <string name="parametroSalida3">texto</string>
     <string name="parametroSalida4">veces</string>
-    
+    <string name="contenidoNotificacion">VOXlectora está corriendo en segundo plano</string>
+
 </resources>

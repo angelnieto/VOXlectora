@@ -2,22 +2,16 @@ package es.ricardo.voxlectora;
 
 import android.os.Bundle;
 import android.app.Activity;
-import android.app.ActivityManager;
-import android.app.ActivityManager.RunningTaskInfo;
 
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 import android.media.MediaPlayer;
 import android.net.Uri;
 import android.preference.PreferenceManager;
 import android.content.BroadcastReceiver;
-import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
@@ -54,7 +48,7 @@ import es.ricardo.voxlectora.utils.Utils;
  */
 public class CamaraActivity extends Activity implements SurfaceHolder.Callback{
 	
-	static final int ACTION_VALUE=1;
+	private static final int ACTION_VALUE=1;
 	private Uri directorio;
 		
 	private Camera miCamara;
@@ -68,6 +62,8 @@ public class CamaraActivity extends Activity implements SurfaceHolder.Callback{
         
 		@Override
         public void onReceive(Context context, Intent intent) {
+			Log.i(getClass().getName(), "onReceive()");
+
 			 detener(false);                            
         }
 		
@@ -76,7 +72,8 @@ public class CamaraActivity extends Activity implements SurfaceHolder.Callback{
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		
+		Log.i(getClass().getName(), "onCreate()");
+
 		SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(this);
 		
 	    if(!settings.getBoolean(getString(R.string.salir), false) && !settings.getBoolean(getString(R.string.saltar), false) && !settings.getBoolean(getString(R.string.home), false)){
@@ -157,6 +154,7 @@ public class CamaraActivity extends Activity implements SurfaceHolder.Callback{
 	
 	@Override protected void onResume(){
 		super.onResume();
+		Log.i(getClass().getName(), "onResume()");
 		
 		if(takePicture!=null){
 	    	//registro la variable de comunicación con el Escuchador
@@ -350,7 +348,7 @@ public class CamaraActivity extends Activity implements SurfaceHolder.Callback{
 		takePicture.setEnabled(false);
 	}
 	
-	Uri getUriArchivoImagen(){
+	private Uri getUriArchivoImagen(){
 		return Uri.fromFile(getImagen());
 	}
 	
@@ -366,7 +364,10 @@ public class CamaraActivity extends Activity implements SurfaceHolder.Callback{
 	}
 
 	   // Método una vez se vuelve a esta ventana
+		@Override
 		protected void onActivityResult(int requestCode,int resultCode,Intent data){
+			Log.i(getClass().getName(), "onActivityResult()");
+
 			if(requestCode == ACTION_VALUE && resultCode==RESULT_CANCELED){
 					setResult(RESULT_CANCELED);
 					SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(this);
@@ -378,6 +379,7 @@ public class CamaraActivity extends Activity implements SurfaceHolder.Callback{
 		@Override
 		protected void onPause(){
 			super.onPause();
+			Log.i(getClass().getName(), "onPause()");
 			
 			if(mp!=null && mp.isPlaying()){
 				mp.stop();
@@ -391,7 +393,8 @@ public class CamaraActivity extends Activity implements SurfaceHolder.Callback{
 		@Override
 		protected void onDestroy(){
 			super.onDestroy();
-			
+			Log.i(getClass().getName(), "onDestroy()");
+
 			unregisterReceiver(abcd);
 		}
 
