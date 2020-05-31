@@ -1,17 +1,13 @@
 package es.ricardo.voxlectora;
 
 import java.util.ArrayList;
-import java.util.List;
 
 import android.media.MediaPlayer;
 import android.media.MediaPlayer.OnCompletionListener;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.app.Activity;
-import android.app.ActivityManager;
-import android.app.ActivityManager.RunningTaskInfo;
 import android.content.BroadcastReceiver;
-import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
@@ -23,9 +19,9 @@ import android.gesture.GestureOverlayView;
 import android.gesture.Prediction;
 import android.gesture.GestureOverlayView.OnGesturePerformedListener;
 import android.graphics.Rect;
+import android.util.Log;
 import android.util.TypedValue;
 import android.view.Gravity;
-import android.view.LayoutInflater;
 import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
@@ -51,33 +47,25 @@ public class ConfirmacionActivity extends Activity implements OnGesturePerformed
 	MediaPlayer mp;
 	private boolean soportaBarraTitulo=false;
 
-	private final BroadcastReceiver abcd = new BroadcastReceiver() {
+	private SharedPreferences settings;
+	private SharedPreferences.Editor editor;
 
-		@Override
-		public void onReceive(Context context, Intent intent) {
-			SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(ConfirmacionActivity.this);
-			SharedPreferences.Editor editor = settings.edit();
-			editor.putBoolean(getString(R.string.salir), true);
-			editor.commit();
-
-			ConfirmacionActivity.this.setResult(RESULT_CANCELED);
-
-			finish();
-		}
-
-	};
-	
 	@Override
 	protected void onCreate(Bundle savedInstanceState){
+		Log.i(getClass().getName(), "onCreate()");
+
 		super.onCreate(savedInstanceState);
 		
 		soportaBarraTitulo = requestWindowFeature(Window.FEATURE_CUSTOM_TITLE);
-		
-		registerReceiver(abcd, new IntentFilter("4"));
+
+		settings = PreferenceManager.getDefaultSharedPreferences(this);
+		editor = settings.edit();
 	}
 	
 	@Override
 	protected void onResume() {
+		Log.i(getClass().getName(), "onResume()");
+
 		super.onResume();
 		
 		setContentView(R.layout.layout_confirmacion);
@@ -92,8 +80,7 @@ public class ConfirmacionActivity extends Activity implements OnGesturePerformed
 		 
 		 if (!libreriaGestos.load()) 
 		     this.finish();
-		 
-		 SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(this);
+
 	     String textoAlmacenado=settings.getString(getString(R.string.texto), null);
 	     
 		 if(textoAlmacenado!=null && !"".equals(textoAlmacenado))
@@ -120,11 +107,6 @@ public class ConfirmacionActivity extends Activity implements OnGesturePerformed
 			});
 		  
 		  mp.start();
-		  
-		//registro la variable de comunicación con el Escuchador
-		SharedPreferences.Editor editor = settings.edit();
-		editor.putInt(getString(R.string.activity),4);
-		editor.commit();
 	}
 
 	@Override
@@ -140,14 +122,12 @@ public class ConfirmacionActivity extends Activity implements OnGesturePerformed
 		 
 		     if(getString(R.string.antihorario).equalsIgnoreCase(result)){
 		    	//Introduzco la variable centinela que le indique al servicio que debe lanzar la aplicación al retirar los auriculares
-		         SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(this);
-		         SharedPreferences.Editor editor = settings.edit();
-		         
 		         String accionLanzamiento=settings.getString(getString(R.string.lanzamiento), null);
-		         if(accionLanzamiento==null)
-		             editor.putString(getString(R.string.lanzamiento), getString(R.string.cascos));
-		         else
-		        	 editor.remove(getString(R.string.lanzamiento));
+		         if(accionLanzamiento==null) {
+					 editor.putString(getString(R.string.lanzamiento), getString(R.string.cascos));
+				 } else {
+					 editor.remove(getString(R.string.lanzamiento));
+				 }
 		         editor.commit();
 		         
 		         gestosView.removeOnGesturePerformedListener(ConfirmacionActivity.this);
@@ -196,8 +176,6 @@ public class ConfirmacionActivity extends Activity implements OnGesturePerformed
 										
 						public void onCompletion(MediaPlayer mp) {
 							//Dado que la ResultadoActivity se destruye al entrar en esta Activity, tengo que indicarle cuando vuelvo lo que debe hacer
-							SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(ConfirmacionActivity.this);
-							SharedPreferences.Editor editor = settings.edit();
 							editor.putBoolean(getString(R.string.salir), true);
 							editor.commit();
 						
@@ -216,7 +194,6 @@ public class ConfirmacionActivity extends Activity implements OnGesturePerformed
 	private void mostrarVeces(){
 		
 		if(!Boolean.parseBoolean(getString(R.string.esSAD))){
-			SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(this);
 			int veces=settings.getInt(getString(R.string.veces), 0);
 	        if(veces!=0){
 	        	//Escalo la barra inferior acorde a la resoluci�n de la pantalla
@@ -252,15 +229,15 @@ public class ConfirmacionActivity extends Activity implements OnGesturePerformed
 	
 	@Override
 	protected void onPause(){
+		Log.i(getClass().getName(), "onPause()");
+
 		super.onPause();
-		
+
 		if(mp!=null && mp.isPlaying())
 			mp.stop();
 		
 		if(Utils.isHomeButtonPressed(getApplicationContext())){
-        	SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(this);
-			SharedPreferences.Editor editor = settings.edit();
-		    editor.putBoolean(getString(R.string.home), true);
+			editor.putBoolean(getString(R.string.home), true);
 		    editor.putBoolean(getString(R.string.saltar), true);
 		    editor.commit();
 		     
@@ -272,9 +249,8 @@ public class ConfirmacionActivity extends Activity implements OnGesturePerformed
 	
 	@Override
 	protected void onDestroy(){
+		Log.i(getClass().getName(), "onDestroy()");
 		super.onDestroy();
-		
-		unregisterReceiver(abcd);
 	}
 
 }

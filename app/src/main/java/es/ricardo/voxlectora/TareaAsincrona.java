@@ -19,6 +19,7 @@ import com.google.gson.JsonParser;
 import android.content.Context;
 import android.media.MediaPlayer;
 import android.os.AsyncTask;
+import android.util.Log;
 
 import es.ricardo.voxlectora.utils.Base64;
 
@@ -34,8 +35,7 @@ public class TareaAsincrona extends AsyncTask<String, String, Boolean> {
 	String excepcion="";
 	String texto=null;
 	int veces=0;
-    static Logger logger = Logger.getLogger("VOXlectora");
-	
+
 	//private GoogleAccountCredential credential;
 	//private String URLServidor="https://googledrive.com/host/0B4O65dFE5SPsNGZTR0puWjREWTQ/";
 
@@ -66,7 +66,8 @@ public class TareaAsincrona extends AsyncTask<String, String, Boolean> {
 
 	@Override
 	protected Boolean doInBackground(String... args) {
-		
+		boolean responseObtainned = false;
+
 		activity.mp=MediaPlayer.create(context, R.raw.procesando);
 		activity.mp.start();
 		
@@ -87,9 +88,12 @@ public class TareaAsincrona extends AsyncTask<String, String, Boolean> {
 	        
 	        if(!isCancelled()){
 		        String jsonRespuesta = EntityUtils.toString(resp.getEntity());
-		        if(jsonRespuesta!=null){
+		        if(jsonRespuesta != null){
 		        	JsonParser parser=new JsonParser();
 					JsonObject jsonObject=parser.parse(jsonRespuesta.trim()).getAsJsonObject();
+
+					Log.i(getClass().getName(), "WS response : " + jsonObject);
+
 					if(jsonObject.get(context.getString(R.string.parametroSalida1)).getAsInt()==1){
 						excepcion+=" "+jsonObject.get(context.getString(R.string.parametroSalida2)).getAsString();
 						if("reloj".equals(jsonObject.get(context.getString(R.string.parametroSalida2)).getAsString()))
@@ -100,17 +104,17 @@ public class TareaAsincrona extends AsyncTask<String, String, Boolean> {
 						texto=jsonObject.get(context.getString(R.string.parametroSalida3)).getAsString();
 						veces=jsonObject.get(context.getString(R.string.parametroSalida4)).getAsInt();
 					}
+					responseObtainned = true;
 				}
 	        }
 		} catch (Exception e) {
 			error=R.raw.error_drive;
 			excepcion+=" "+e.getMessage();
 
-            logger.log(Level.SEVERE,e.getMessage(),e);
-
-             return false;
+            Log.e(getClass().getName(),e.getMessage(),e);
+			responseObtainned = false;
          }
-		 return true;
+		 return responseObtainned;
      }
 
 	@Override

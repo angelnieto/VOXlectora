@@ -25,6 +25,7 @@ import android.gesture.GestureOverlayView.OnGesturePerformedListener;
 import android.graphics.Rect;
 import android.speech.tts.TextToSpeech;
 import android.util.DisplayMetrics;
+import android.util.Log;
 import android.util.TypedValue;
 import android.view.Gravity;
 import android.view.LayoutInflater;
@@ -56,36 +57,24 @@ public class ResultadoActivity extends Activity implements TextToSpeech.OnInitLi
 	private TareaAsincrona tareaAsincrona=null;
 	private boolean soportaBarraTitulo=false;
 
-    private final BroadcastReceiver abcd = new BroadcastReceiver() {
+	private SharedPreferences settings;
+	private SharedPreferences.Editor editor;
 
-        @Override
-        public void onReceive(Context context, Intent intent) {
-            SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(ResultadoActivity.this);
-            SharedPreferences.Editor editor = settings.edit();
-            editor.putBoolean(getString(R.string.salir), true);
-            editor.commit();
-
-            ResultadoActivity.this.setResult(RESULT_CANCELED);
-
-            finish();
-        }
-
-    };
-	
 	@Override
 	protected void onCreate(Bundle savedInstanceState){
+		Log.i(getClass().getName(), "onCreate()");
 		super.onCreate(savedInstanceState);
-		
+
 		soportaBarraTitulo = requestWindowFeature(Window.FEATURE_CUSTOM_TITLE);
-		
-		registerReceiver(abcd, new IntentFilter("3"));
+
+        settings = PreferenceManager.getDefaultSharedPreferences(this);
+        editor = settings.edit();
 	}
 	
 	@Override
 	protected void onResume(){
 		super.onResume();
-		
-		SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(this);
+		Log.i(getClass().getName(), "onResume()");
 
 	    if(!settings.getBoolean(getString(R.string.salir), false) && !settings.getBoolean(getString(R.string.home), false) && !settings.getBoolean(getString(R.string.saltar), false)){
 			setContentView(R.layout.layout_resultado);
@@ -93,12 +82,7 @@ public class ResultadoActivity extends Activity implements TextToSpeech.OnInitLi
 			if(soportaBarraTitulo)
 				getWindow().setFeatureInt(Window.FEATURE_CUSTOM_TITLE, R.layout.layout_titulo);
 			
-	    	//registro la variable de comunicación con el Escuchador
-			SharedPreferences.Editor editor = settings.edit();
-			editor.putInt(getString(R.string.activity),3);
-			editor.commit();
-			
-			if(tts==null)
+	    	if(tts==null)
 				tts = new TextToSpeech(this, this);
 	    	tts.setSpeechRate(Float.parseFloat("0.7"));
 						
@@ -154,15 +138,14 @@ public class ResultadoActivity extends Activity implements TextToSpeech.OnInitLi
 		findViewById(R.id.progressBar).setVisibility(View.GONE);
 		
 		//Dado que la ResultadoActivity se destruye al dejar en segundo plano la aplicación, tengo que indicarle cuando vuelvo lo que debe hacer
-        SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(this);
         String textoAlmacenado=settings.getString(getString(R.string.texto), null);
 
         if(mensajeError==0){
 		    if(textoAlmacenado==null){
-		    	SharedPreferences.Editor editor = settings.edit();
 		    	editor.putString(getString(R.string.texto), texto);
-		    	if(veces!=0)
-		    		editor.putInt(getString(R.string.veces), veces);
+		    	if(veces!=0) {
+                    editor.putInt(getString(R.string.veces), veces);
+                }
 		    	editor.commit();
 		    }
 		    
@@ -237,6 +220,7 @@ public class ResultadoActivity extends Activity implements TextToSpeech.OnInitLi
 	@Override
     protected void onPause() {
 		super.onPause();
+		Log.i(getClass().getName(), "onPause()");
 
         if (tts != null) {
             tts.stop();
@@ -247,8 +231,6 @@ public class ResultadoActivity extends Activity implements TextToSpeech.OnInitLi
         if(tareaAsincrona!=null)
 			tareaAsincrona.cancel(true);
         if(Utils.isHomeButtonPressed(getApplicationContext())){
-        	SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(this);
-			SharedPreferences.Editor editor = settings.edit();
 		    editor.putBoolean(getString(R.string.home), true);
 		    //variable para que la recoja IntroActivity.java
 		    editor.putBoolean(getString(R.string.saltar), true);
@@ -262,20 +244,20 @@ public class ResultadoActivity extends Activity implements TextToSpeech.OnInitLi
 	
 	@Override
 	protected void onDestroy(){
+		Log.i(getClass().getName(), "onDestroy()");
 		super.onDestroy();
 		
 		if (mp!=null)
 			mp.release();
-		
-		unregisterReceiver(abcd);
 	}
 
     @Override
     protected void onActivityResult(final int requestCode, final int resultCode, final Intent data) {
+	  Log.i(getClass().getName(), "onActivityResult()");
       if(requestCode == ACTION_VALUE && resultCode==RESULT_CANCELED){
-					SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(this);
-				    if(settings.getBoolean(getString(R.string.salir), false) || settings.getBoolean(getString(R.string.home), false) || settings.getBoolean(getString(R.string.saltar), false))
-				    	salir();
+		    if(settings.getBoolean(getString(R.string.salir), false) || settings.getBoolean(getString(R.string.home), false) || settings.getBoolean(getString(R.string.saltar), false)) {
+                salir();
+            }
 	  }
 
 
@@ -357,10 +339,8 @@ public class ResultadoActivity extends Activity implements TextToSpeech.OnInitLi
 			mp.setOnCompletionListener(new OnCompletionListener() {
 
 					public void onCompletion(MediaPlayer mp) {
-						SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(ResultadoActivity.this);
-					    if(!settings.getBoolean(getString(R.string.salir), false) && !settings.getBoolean(getString(R.string.home), false)){
+						if(!settings.getBoolean(getString(R.string.salir), false) && !settings.getBoolean(getString(R.string.home), false)){
 					    	//Dado que la CamaraActivity se destruye al entrar en esta Activity, tengo que indicarle cuando vuelvo lo que debe hacer
-					        SharedPreferences.Editor editor = settings.edit();
 					        editor.putBoolean(getString(R.string.salir), true);
 					        editor.commit();
 					    }
@@ -377,8 +357,7 @@ public class ResultadoActivity extends Activity implements TextToSpeech.OnInitLi
 		private void habilitarGestos(){
 			
 			if(tv.getText()==null || "".contentEquals(tv.getText())){
-				SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(this);
-		        String textoAlmacenado=settings.getString(getString(R.string.texto), null);
+				String textoAlmacenado=settings.getString(getString(R.string.texto), null);
 		        
 		        if(checkTextIsNotNull(textoAlmacenado))
 					mostrarMensaje(textoAlmacenado);
@@ -394,7 +373,6 @@ public class ResultadoActivity extends Activity implements TextToSpeech.OnInitLi
 	
 					public void onCompletion(MediaPlayer mp) {	
 					
-						SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(ResultadoActivity.this);
 						 String accionLanzamiento=settings.getString(getString(R.string.lanzamiento), null);
 						 if(accionLanzamiento==null)
 							 ResultadoActivity.this.mp = MediaPlayer.create(ResultadoActivity.this, R.raw.vincular);
@@ -427,7 +405,6 @@ public class ResultadoActivity extends Activity implements TextToSpeech.OnInitLi
 		private void mostrarVeces(){
 			
 			if(!Boolean.parseBoolean(getString(R.string.esSAD))){
-				SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(this);
 				int veces=settings.getInt(getString(R.string.veces), 0);
 		        if(veces!=0){
 		        	//Escalo la barra inferior acorde a la resolución de la pantalla

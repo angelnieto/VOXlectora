@@ -11,10 +11,8 @@ import java.io.IOException;
 import android.media.MediaPlayer;
 import android.net.Uri;
 import android.preference.PreferenceManager;
-import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
-import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -57,24 +55,18 @@ public class CamaraActivity extends Activity implements SurfaceHolder.Callback{
 	private String gradosARotar = "0";
 	private float coordenadaY;
     private float coordenadaX;
+
+    private SharedPreferences settings;
+    private SharedPreferences.Editor editor;
 	
-	private final BroadcastReceiver abcd = new BroadcastReceiver() {
-        
-		@Override
-        public void onReceive(Context context, Intent intent) {
-			Log.i(getClass().getName(), "onReceive()");
-
-			 detener(false);                            
-        }
-		
-	};
-
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
-		super.onCreate(savedInstanceState);
 		Log.i(getClass().getName(), "onCreate()");
 
-		SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(this);
+		super.onCreate(savedInstanceState);
+
+		settings = PreferenceManager.getDefaultSharedPreferences(this);
+		editor = settings.edit();
 		
 	    if(!settings.getBoolean(getString(R.string.salir), false) && !settings.getBoolean(getString(R.string.saltar), false) && !settings.getBoolean(getString(R.string.home), false)){
 			getWindow().setFormat(PixelFormat.TRANSPARENT);
@@ -141,29 +133,20 @@ public class CamaraActivity extends Activity implements SurfaceHolder.Callback{
 			SensorManager sm=(SensorManager)getSystemService(Context.SENSOR_SERVICE);
 			sm.registerListener(sensorEventListener, sm.getSensorList(Sensor.TYPE_ACCELEROMETER ).get(0),SensorManager.SENSOR_DELAY_NORMAL);
 		}else{
-			SharedPreferences.Editor editor = settings.edit();
 			editor.remove(getString(R.string.saltar));
 			editor.commit();
 			
 			setResult(RESULT_CANCELED);
 			finish();
 		}
-	    
-	    registerReceiver(abcd, new IntentFilter("2"));
 	}
 	
 	@Override protected void onResume(){
-		super.onResume();
 		Log.i(getClass().getName(), "onResume()");
-		
+		super.onResume();
+
 		if(takePicture!=null){
-	    	//registro la variable de comunicación con el Escuchador
-			SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(this);
-			SharedPreferences.Editor editor = settings.edit();
-			editor.putInt(getString(R.string.activity),2);
-			editor.commit();
-			
-			takePicture.setText(R.string.texto_previsualizacion);
+	    	takePicture.setText(R.string.texto_previsualizacion);
 			takePicture.setEnabled(true);
 		}
 		
@@ -303,8 +286,6 @@ public class CamaraActivity extends Activity implements SurfaceHolder.Callback{
 					       resizedBitmap.compress(Bitmap.CompressFormat.JPEG, 100, out);
 
                             //Borro el texto del procesamiento anterior
-                            SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(CamaraActivity.this);
-                            SharedPreferences.Editor editor = settings.edit();
                             editor.remove(getString(R.string.texto));
                             editor.commit();
 
@@ -370,43 +351,34 @@ public class CamaraActivity extends Activity implements SurfaceHolder.Callback{
 
 			if(requestCode == ACTION_VALUE && resultCode==RESULT_CANCELED){
 					setResult(RESULT_CANCELED);
-					SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(this);
-					if(settings.getBoolean(getString(R.string.salir), false) || settings.getBoolean(getString(R.string.home), false) || settings.getBoolean(getString(R.string.saltar), false))
+					if(settings.getBoolean(getString(R.string.salir), false) || settings.getBoolean(getString(R.string.home), false) || settings.getBoolean(getString(R.string.saltar), false)) {
 						finish();
+					}
 			}
 		}
 		
 		@Override
 		protected void onPause(){
-			super.onPause();
 			Log.i(getClass().getName(), "onPause()");
-			
+			super.onPause();
+
 			if(mp!=null && mp.isPlaying()){
 				mp.stop();
 				mp.release();
 			}
 				
 			if(Utils.isHomeButtonPressed(getApplicationContext()))
-				detener(true);
+				detener();
 		}
 		
 		@Override
 		protected void onDestroy(){
-			super.onDestroy();
 			Log.i(getClass().getName(), "onDestroy()");
-
-			unregisterReceiver(abcd);
+			super.onDestroy();
 		}
 
-		private void detener(boolean botonHome){
-			SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(CamaraActivity.this);
-			SharedPreferences.Editor editor = settings.edit();
-		
-			if(botonHome) {
-				editor.putBoolean(getString(R.string.home), true);
-			} else if(!settings.getBoolean(getString(R.string.cascosAnterior), false)) {
-				editor.putBoolean(getString(R.string.salir), true);
-			}
+		private void detener(){
+			editor.putBoolean(getString(R.string.home), true);
 			editor.commit();
 		    setResult(RESULT_CANCELED);
 			
@@ -415,8 +387,8 @@ public class CamaraActivity extends Activity implements SurfaceHolder.Callback{
 		
 		@Override
 		public void onBackPressed(){
-			SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(CamaraActivity.this);
-			SharedPreferences.Editor editor = settings.edit();
+			Log.i(getClass().getName(), "onBackPressed()");
+
 			editor.putBoolean(getString(R.string.back), true);
 			editor.commit();
 			

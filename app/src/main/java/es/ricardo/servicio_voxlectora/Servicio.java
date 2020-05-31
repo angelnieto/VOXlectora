@@ -38,7 +38,7 @@ public class Servicio extends Service {
 		IntentFilter receiverFilter = new IntentFilter(Intent.ACTION_HEADSET_PLUG);
 
 		registerReceiver( escuchador, receiverFilter );
-//	    Toast.makeText(this, "cascos registrados", Toast.LENGTH_LONG).show();
+
 		Log.i(getClass().getName(), "cascos registrados");
 
         PowerManager powerManager = (PowerManager) getSystemService(POWER_SERVICE);
@@ -60,7 +60,7 @@ public class Servicio extends Service {
        SharedPreferences.Editor editor = settings.edit();
    	   editor.remove(getString(R.string.salir));
    	   editor.remove(getString(R.string.saltar));
-   	   editor.commit();
+   	   editor.apply();
 
    	   Log.i(getClass().getName(), "Servicio creado");
 //   	   Toast.makeText(this, "Servicio creado", Toast.LENGTH_LONG).show();
