@@ -11,10 +11,7 @@ import android.media.MediaPlayer.OnCompletionListener;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.app.Activity;
-import android.content.BroadcastReceiver;
-import android.content.Context;
 import android.content.Intent;
-import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.gesture.Gesture;
 import android.gesture.GestureLibraries;
@@ -28,7 +25,6 @@ import android.util.DisplayMetrics;
 import android.util.Log;
 import android.util.TypedValue;
 import android.view.Gravity;
-import android.view.LayoutInflater;
 import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
@@ -45,8 +41,6 @@ import android.widget.Toast;
  */
 public class ResultadoActivity extends Activity implements TextToSpeech.OnInitListener, OnGesturePerformedListener{
 
-	static final int ACTION_VALUE=1;
-	
 	private TextView tv;
 	private TextToSpeech tts;
 	
@@ -88,14 +82,13 @@ public class ResultadoActivity extends Activity implements TextToSpeech.OnInitLi
 						
 		    String texto=settings.getString(getString(R.string.texto), null);
 		    
-		    tv = (TextView)findViewById(R.id.texto);
+		    tv = findViewById(R.id.texto);
 		    
 		    //¡¡¡  BORRAR  !!! 
 		    //registerForContextMenu(tv);
 		    		    
 		    //Agrego la capa para detectar gestos
-			 LayoutInflater myInflater=LayoutInflater.from(ResultadoActivity.this);
-			 gestosView=(GestureOverlayView) myInflater.inflate(R.layout.capa_gestos, null);
+			 gestosView = (GestureOverlayView) View.inflate(getApplicationContext(), R.layout.capa_gestos, null);
 			 libreriaGestos = GestureLibraries.fromRawResource(ResultadoActivity.this, R.raw.gestures);
 			 ResultadoActivity.this.addContentView(gestosView, new LayoutParams(LayoutParams.MATCH_PARENT,LayoutParams.MATCH_PARENT));
 			 if (!libreriaGestos.load()) 
@@ -109,7 +102,7 @@ public class ResultadoActivity extends Activity implements TextToSpeech.OnInitLi
 		    	
 		    	DisplayMetrics dm = getResources().getDisplayMetrics(); 
 		    	
-		    	ProgressBar circulo=(ProgressBar)findViewById(R.id.progressBar);
+		    	ProgressBar circulo = findViewById(R.id.progressBar);
 		
 		    	circulo.setScaleX(Math.round(Math.floor(0.015*pantalla.width()/dm.density)));
 		    	circulo.setScaleY(circulo.getScaleX());
@@ -254,7 +247,7 @@ public class ResultadoActivity extends Activity implements TextToSpeech.OnInitLi
     @Override
     protected void onActivityResult(final int requestCode, final int resultCode, final Intent data) {
 	  Log.i(getClass().getName(), "onActivityResult()");
-      if(requestCode == ACTION_VALUE && resultCode==RESULT_CANCELED){
+      if(requestCode == Utils.RESULTADO_ACTIVITY_REQUEST_CODE && resultCode==RESULT_CANCELED){
 		    if(settings.getBoolean(getString(R.string.salir), false) || settings.getBoolean(getString(R.string.home), false) || settings.getBoolean(getString(R.string.saltar), false)) {
                 salir();
             }
@@ -307,7 +300,7 @@ public class ResultadoActivity extends Activity implements TextToSpeech.OnInitLi
 			     }else if(getString(R.string.c).equalsIgnoreCase(result)){
 			    	 //showToast("C");
 			    	 Intent results = new Intent( ResultadoActivity.this, ConfirmacionActivity.class);
-				   	startActivityForResult(results, ACTION_VALUE);
+				   	 startActivityForResult(results, Utils.RESULTADO_ACTIVITY_REQUEST_CODE);
 			     }
 			}
 		}
@@ -412,7 +405,7 @@ public class ResultadoActivity extends Activity implements TextToSpeech.OnInitLi
 			    	Rect pantalla=new Rect();
 			    	windowManager.getDefaultDisplay().getRectSize(pantalla);
 			    	        	
-		        	LinearLayout marcador=(LinearLayout) findViewById(R.id.rayas1);
+		        	LinearLayout marcador = findViewById(R.id.rayas1);
 		        	marcador.setLayoutParams(new FrameLayout.LayoutParams(FrameLayout.LayoutParams.MATCH_PARENT, Math.round(pantalla.height()/12),Gravity.BOTTOM));
 		        	
 		        	for(int i=15;i>15-veces && i>0;i--){

@@ -27,8 +27,6 @@ import es.ricardo.voxlectora.utils.Utils;
 
 public class IntroActivity extends Activity{
 	
-	private static final int ACTION_VALUE=1;
-
 	private Button irPrevisualizacion;
 
 	private VideoView v = null;
@@ -147,7 +145,7 @@ public class IntroActivity extends Activity{
 		editor.commit();
 		
 		Intent i=new Intent(this,CamaraActivity.class);
-		startActivityForResult(i, ACTION_VALUE);
+		startActivityForResult(i, Utils.INTRO_ACTIVITY_REQUEST_CODE);
 	}
 	
 	//Método una vez se vuelve a esta ventana
@@ -155,7 +153,7 @@ public class IntroActivity extends Activity{
 	protected void onActivityResult(int requestCode,int resultCode,Intent data){
         Log.i(getClass().getName(), "onActivityResult()");
 
-		if(requestCode == ACTION_VALUE && resultCode==RESULT_CANCELED){
+		if(requestCode == Utils.INTRO_ACTIVITY_REQUEST_CODE && resultCode==RESULT_CANCELED){
 				if(settings.getBoolean(getString(R.string.salir), false)) {
 					detener();
 				}

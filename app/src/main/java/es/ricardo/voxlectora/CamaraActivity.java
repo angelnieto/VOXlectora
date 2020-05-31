@@ -28,7 +28,6 @@ import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 import android.util.Log;
-import android.view.LayoutInflater;
 import android.view.Surface;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
@@ -46,9 +45,6 @@ import es.ricardo.voxlectora.utils.Utils;
  */
 public class CamaraActivity extends Activity implements SurfaceHolder.Callback{
 	
-	private static final int ACTION_VALUE=1;
-	private Uri directorio;
-		
 	private Camera miCamara;
 	private Button takePicture;
 	private MediaPlayer mp;
@@ -75,17 +71,15 @@ public class CamaraActivity extends Activity implements SurfaceHolder.Callback{
 	
 			setContentView(R.layout.layout_camara);
 			
-			SurfaceView mySurfaceView = (SurfaceView) findViewById(R.id.surface);
+			SurfaceView mySurfaceView = findViewById(R.id.surface);
 	
 			SurfaceHolder mySurfaceHolder = mySurfaceView.getHolder();
 			mySurfaceHolder.addCallback(this);
-			mySurfaceHolder.setType(SurfaceHolder.SURFACE_TYPE_PUSH_BUFFERS);
-			
-			LayoutInflater myInflater=LayoutInflater.from(this);
-			View overView=myInflater.inflate(R.layout.segundacapa, null);
+
+			View overView= View.inflate(getApplicationContext(), R.layout.segundacapa, null);
 			this.addContentView(overView, new LayoutParams(LayoutParams.MATCH_PARENT,LayoutParams.MATCH_PARENT));
 			
-			takePicture = (Button) findViewById(R.id.button);		
+			takePicture = findViewById(R.id.button);
 			takePicture.setText(R.string.texto_previsualizacion);
 			takePicture.setOnClickListener(new OnClickListener() {
 	
@@ -109,13 +103,15 @@ public class CamaraActivity extends Activity implements SurfaceHolder.Callback{
 		            int lRotation = lWindowManager.getDefaultDisplay().getRotation();
 					switch (lRotation) {
 						case Surface.ROTATION_90:
-							if (miCamara != null)
+							if (miCamara != null) {
 								miCamara.setDisplayOrientation(0);
+							}
 							gradosARotar(lRotation);
 							break;
 						case Surface.ROTATION_270:
-							if (miCamara != null)
+							if (miCamara != null) {
 								miCamara.setDisplayOrientation(180);
+							}
 							gradosARotar(lRotation);
 							break;
 						case Surface.ROTATION_180:
@@ -132,7 +128,7 @@ public class CamaraActivity extends Activity implements SurfaceHolder.Callback{
 			//El sensor es el que determina el volteado de la previsualización en pantalla 
 			SensorManager sm=(SensorManager)getSystemService(Context.SENSOR_SERVICE);
 			sm.registerListener(sensorEventListener, sm.getSensorList(Sensor.TYPE_ACCELEROMETER ).get(0),SensorManager.SENSOR_DELAY_NORMAL);
-		}else{
+		} else {
 			editor.remove(getString(R.string.saltar));
 			editor.commit();
 			
@@ -150,19 +146,21 @@ public class CamaraActivity extends Activity implements SurfaceHolder.Callback{
 			takePicture.setEnabled(true);
 		}
 		
-		if(mp!=null && mp.isPlaying())
+		if(mp!=null && mp.isPlaying()) {
 			mp.stop();
+		}
 	}
 
 	private void gradosARotar(int rotacion){
-		if(Math.abs(coordenadaX)<1.3 && coordenadaY<-1)			//portrait reverse
-        	gradosARotar="270";
-        else if(Math.abs(coordenadaX)<1.3 && coordenadaY>1)		//portrait
-        	gradosARotar="90";
-        else if(rotacion==Surface.ROTATION_90) 					//landscape reverse
-        	gradosARotar="0";
-        else													//landscape
-        	gradosARotar="180";
+		if(Math.abs(coordenadaX)<1.3 && coordenadaY<-1) {            //portrait reverse
+			gradosARotar = "270";
+		} else if(Math.abs(coordenadaX)<1.3 && coordenadaY>1) {        //portrait
+			gradosARotar = "90";
+		} else if(rotacion==Surface.ROTATION_90) {                    //landscape reverse
+			gradosARotar = "0";
+		} else {                                                    //landscape
+			gradosARotar = "180";
+		}
 	}
 
 	/**
@@ -291,7 +289,7 @@ public class CamaraActivity extends Activity implements SurfaceHolder.Callback{
 
                          //Llamo a la siguiente pantalla
                          Intent results = new Intent(CamaraActivity.this, ResultadoActivity.class);
-                         startActivityForResult(results, ACTION_VALUE);
+                         startActivityForResult(results, Utils.CAMARA_ACTIVITY_REQUEST_CODE);
 				    } catch (FileNotFoundException e) {
 				   			mp=MediaPlayer.create(CamaraActivity.this, R.raw.error_captura);
 				   			mp.start();
@@ -349,7 +347,7 @@ public class CamaraActivity extends Activity implements SurfaceHolder.Callback{
 		protected void onActivityResult(int requestCode,int resultCode,Intent data){
 			Log.i(getClass().getName(), "onActivityResult()");
 
-			if(requestCode == ACTION_VALUE && resultCode==RESULT_CANCELED){
+			if(requestCode == Utils.CAMARA_ACTIVITY_REQUEST_CODE && resultCode==RESULT_CANCELED){
 					setResult(RESULT_CANCELED);
 					if(settings.getBoolean(getString(R.string.salir), false) || settings.getBoolean(getString(R.string.home), false) || settings.getBoolean(getString(R.string.saltar), false)) {
 						finish();

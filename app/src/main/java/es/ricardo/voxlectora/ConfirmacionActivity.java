@@ -7,10 +7,6 @@ import android.media.MediaPlayer.OnCompletionListener;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.app.Activity;
-import android.content.BroadcastReceiver;
-import android.content.Context;
-import android.content.Intent;
-import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.gesture.Gesture;
 import android.gesture.GestureLibraries;
@@ -155,7 +151,7 @@ public class ConfirmacionActivity extends Activity implements OnGesturePerformed
    	  }
  	 
  	private void mostrarTexto( String text ){
-		tv = (TextView)findViewById(R.id.texto1);
+		tv = findViewById(R.id.texto1);
 		tv.setTextColor(getResources().getColor(R.color.morado));
 		tv.setText(text);
 	}
@@ -196,7 +192,7 @@ public class ConfirmacionActivity extends Activity implements OnGesturePerformed
 		if(!Boolean.parseBoolean(getString(R.string.esSAD))){
 			int veces=settings.getInt(getString(R.string.veces), 0);
 	        if(veces!=0){
-	        	//Escalo la barra inferior acorde a la resoluci�n de la pantalla
+	        	//Escalo la barra inferior acorde a la resolución de la pantalla
 		    	WindowManager windowManager =  (WindowManager) getSystemService(WINDOW_SERVICE);
 		    	Rect pantalla=new Rect();
 		    	windowManager.getDefaultDisplay().getRectSize(pantalla);
