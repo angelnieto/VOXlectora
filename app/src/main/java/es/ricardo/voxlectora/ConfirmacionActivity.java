@@ -2,8 +2,11 @@ package es.ricardo.voxlectora;
 
 import java.util.ArrayList;
 
+import android.content.Intent;
+import android.content.IntentFilter;
 import android.media.MediaPlayer;
 import android.media.MediaPlayer.OnCompletionListener;
+import android.os.Build;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.app.Activity;
@@ -28,6 +31,8 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import es.ricardo.servicio_voxlectora.EscuchadorCascos;
+import es.ricardo.servicio_voxlectora.Servicio;
 import es.ricardo.voxlectora.utils.Utils;
 
 /**
@@ -119,10 +124,20 @@ public class ConfirmacionActivity extends Activity implements OnGesturePerformed
 		     if(getString(R.string.antihorario).equalsIgnoreCase(result)){
 		    	//Introduzco la variable centinela que le indique al servicio que debe lanzar la aplicación al retirar los auriculares
 		         String accionLanzamiento=settings.getString(getString(R.string.lanzamiento), null);
+
+				 IntentFilter receiverFilter = new IntentFilter(Intent.ACTION_HEADSET_PLUG);
 		         if(accionLanzamiento==null) {
 					 editor.putString(getString(R.string.lanzamiento), getString(R.string.cascos));
 				 } else {
 					 editor.remove(getString(R.string.lanzamiento));
+					 Intent serviceIntent = new Intent(getApplicationContext(), Servicio.class);
+					 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+						 Log.i(getClass().getName(), "Stopping the service in >=26 Mode");
+						 getApplicationContext().stopService(serviceIntent);
+					 } else {
+						 Log.i(getClass().getName(), "Stopping the service in <26 Mode");
+						 getApplicationContext().stopService(serviceIntent);
+					 }
 				 }
 		         editor.commit();
 		         
