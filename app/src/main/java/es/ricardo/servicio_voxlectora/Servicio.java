@@ -97,9 +97,10 @@ public class Servicio extends Service {
 
     @Override
 	public void onDestroy() {
+		super.onDestroy();
 		Log.i(getClass().getName(), "onDestroy()");
 
-		super.onDestroy();
+		unregisterReceiver(escuchador);
 	}
 	
 }

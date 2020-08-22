@@ -84,21 +84,21 @@ public class ConfirmacionActivity extends Activity implements OnGesturePerformed
 
 	     String textoAlmacenado=settings.getString(getString(R.string.texto), null);
 	     
-		 if(textoAlmacenado!=null && !"".equals(textoAlmacenado))
+		 if(textoAlmacenado!=null && !"".equals(textoAlmacenado)) {
 			 mostrarTexto(textoAlmacenado);
-		 else
+		 } else {
 			 mostrarTexto(getString(R.string.nada));
-		 
+		 }
 		 mostrarVeces();
 		 establecerFuente();
 		 
 		 String accionLanzamiento=settings.getString(getString(R.string.lanzamiento), null);
 		 
-		 if(accionLanzamiento==null)
+		 if(accionLanzamiento==null) {
 			 mp = MediaPlayer.create(this, R.raw.vincular_confirmacion);
-		 else
-			 mp = MediaPlayer.create(this, R.raw.desvincular_confirmacion); 
-		 
+		 } else {
+			 mp = MediaPlayer.create(this, R.raw.desvincular_confirmacion);
+		 }
 		 mp.setOnCompletionListener(new OnCompletionListener() {
 
 				public void onCompletion(MediaPlayer mp) {	
@@ -126,11 +126,20 @@ public class ConfirmacionActivity extends Activity implements OnGesturePerformed
 		         String accionLanzamiento=settings.getString(getString(R.string.lanzamiento), null);
 
 				 IntentFilter receiverFilter = new IntentFilter(Intent.ACTION_HEADSET_PLUG);
-		         if(accionLanzamiento==null) {
+				 Intent serviceIntent = new Intent(getApplicationContext(), Servicio.class);
+				 if(accionLanzamiento==null) {
 					 editor.putString(getString(R.string.lanzamiento), getString(R.string.cascos));
+
+					 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+						 Log.i(getClass().getName(), "Starting the service in >=26 Mode");
+						 getApplicationContext().startService(serviceIntent);
+					 } else {
+						 Log.i(getClass().getName(), "Starting the service in <26 Mode");
+						 getApplicationContext().startService(serviceIntent);
+					 }
 				 } else {
 					 editor.remove(getString(R.string.lanzamiento));
-					 Intent serviceIntent = new Intent(getApplicationContext(), Servicio.class);
+
 					 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
 						 Log.i(getClass().getName(), "Stopping the service in >=26 Mode");
 						 getApplicationContext().stopService(serviceIntent);

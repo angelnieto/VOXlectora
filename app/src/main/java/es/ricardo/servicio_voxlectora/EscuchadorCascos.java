@@ -17,6 +17,7 @@ public class EscuchadorCascos extends BroadcastReceiver {
 	
 	SharedPreferences settings;
 
+	boolean auricularesInsertados = false;
 
 	@Override
 	public void onReceive(Context context, Intent intent) {
@@ -26,7 +27,7 @@ public class EscuchadorCascos extends BroadcastReceiver {
 
 		Log.i(getClass().getName(), "acción recibida : " + intent.getAction() + " state : " + state );
 
-		if (Intent.ACTION_HEADSET_PLUG.equals(intent.getAction()) && state == 0) {
+		if (Intent.ACTION_HEADSET_PLUG.equals(intent.getAction()) && state == 0 && auricularesInsertados) {
 				Intent i = new Intent();
 				i.setClassName(context.getString(R.string.paquete), context.getString(R.string.clase));
 				i.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
@@ -35,6 +36,8 @@ public class EscuchadorCascos extends BroadcastReceiver {
 
 				Toast.makeText(context, "Auricular extraído", Toast.LENGTH_SHORT).show();
 				Log.i(getClass().getName(), "Auricular extraído");
+		} else if(Intent.ACTION_HEADSET_PLUG.equals(intent.getAction()) && state == 1) {
+			auricularesInsertados = true;
 		}
 
 	}
