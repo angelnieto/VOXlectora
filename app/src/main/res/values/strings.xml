@@ -47,6 +47,6 @@
     <string name="parametroSalida2">mensajeError</string>
     <string name="parametroSalida3">texto</string>
     <string name="parametroSalida4">veces</string>
-    <string name="contenidoNotificacion">VOXlectora está corriendo en segundo plano</string>
+    <string name="contenidoNotificacion">Servicio en escucha</string>
 
 </resources>

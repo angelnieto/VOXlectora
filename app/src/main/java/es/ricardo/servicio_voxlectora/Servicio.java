@@ -95,6 +95,7 @@ public class Servicio extends Service {
 		Notification notification = notificationBuilder.setOngoing(true)
 				.setSmallIcon(R.drawable.icono_notificacion)
 				.setLargeIcon(BitmapFactory.decodeResource(this.getApplicationContext().getResources(),	R.drawable.icono))
+				.setColor(Color.YELLOW)
 				.setContentTitle(getString(R.string.contenidoNotificacion))
 				.setPriority(NotificationManager.IMPORTANCE_MIN)
 				.setCategory(Notification.CATEGORY_SERVICE)
