@@ -9,6 +9,7 @@ import android.app.Service;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
+import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.os.Build;
 import android.os.IBinder;
@@ -63,39 +64,45 @@ public class Servicio extends Service {
    	   editor.apply();
 
    	   Log.i(getClass().getName(), "Servicio creado");
-//   	   Toast.makeText(this, "Servicio creado", Toast.LENGTH_LONG).show();
+
+		String NOTIFICATION_CHANNEL_ID = "es.ricardo.voxlectora";
 
 		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-			startMyOwnForeground();
+			startMyOwnForeground(NOTIFICATION_CHANNEL_ID);
 		} else {
 			// If earlier version channel ID is not used
 			// https://developer.android.com/reference/android/support/v4/app/NotificationCompat.Builder.html#NotificationCompat.Builder(android.content.Context)
-			startForeground(1, new Notification());
+			startService(NOTIFICATION_CHANNEL_ID);
 		}
     }
 
 	@RequiresApi(api = Build.VERSION_CODES.O)
-	private void startMyOwnForeground(){
-		String NOTIFICATION_CHANNEL_ID = "es.ricardo.voxlectora";
+	private void startMyOwnForeground(String channelId){
+
 		String channelName = "VOXlectora - Servicio";
-		NotificationChannel chan = new NotificationChannel(NOTIFICATION_CHANNEL_ID, channelName, NotificationManager.IMPORTANCE_NONE);
+		NotificationChannel chan = new NotificationChannel(channelId, channelName, NotificationManager.IMPORTANCE_NONE);
 		chan.setLightColor(Color.BLUE);
 		chan.setLockscreenVisibility(Notification.VISIBILITY_PRIVATE);
 		NotificationManager manager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
 		assert manager != null;
 		manager.createNotificationChannel(chan);
 
-		NotificationCompat.Builder notificationBuilder = new NotificationCompat.Builder(this, NOTIFICATION_CHANNEL_ID);
+		startService(channelId);
+	}
+
+	private void startService(String channelId) {
+		NotificationCompat.Builder notificationBuilder = new NotificationCompat.Builder(this, channelId);
 		Notification notification = notificationBuilder.setOngoing(true)
 				.setSmallIcon(R.drawable.icono_notificacion)
+				.setLargeIcon(BitmapFactory.decodeResource(this.getApplicationContext().getResources(),	R.drawable.icono))
 				.setContentTitle(getString(R.string.contenidoNotificacion))
 				.setPriority(NotificationManager.IMPORTANCE_MIN)
 				.setCategory(Notification.CATEGORY_SERVICE)
 				.build();
-		startForeground(2, notification);
+		startForeground(1, notification);
 	}
 
-    @Override
+	@Override
 	public void onDestroy() {
 		super.onDestroy();
 		Log.i(getClass().getName(), "onDestroy()");
