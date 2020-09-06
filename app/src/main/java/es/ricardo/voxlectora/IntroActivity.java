@@ -1,5 +1,7 @@
 package es.ricardo.voxlectora;
 
+import android.Manifest;
+import android.content.pm.PackageManager;
 import android.hardware.Camera.CameraInfo;
 import android.media.MediaPlayer;
 import android.media.MediaPlayer.OnCompletionListener;
@@ -10,6 +12,8 @@ import android.preference.PreferenceManager;
 import android.app.Activity;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.support.v4.app.ActivityCompat;
+import android.support.v4.content.ContextCompat;
 import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -18,6 +22,9 @@ import android.view.Window;
 import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.VideoView;
+
+import java.util.ArrayList;
+import java.util.List;
 
 import es.ricardo.voxlectora.utils.Utils;
 
@@ -80,9 +87,9 @@ public class IntroActivity extends Activity{
 
 				setContentView(R.layout.layout_intro);
 
-				if (soportaBarraTitulo)
+				if (soportaBarraTitulo) {
 					window.setFeatureInt(Window.FEATURE_CUSTOM_TITLE, R.layout.layout_titulo);
-
+				}
 				View overView = View.inflate(getApplicationContext(), R.layout.segundacapa, null);
 				this.addContentView(overView, new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT));
 
@@ -92,9 +99,13 @@ public class IntroActivity extends Activity{
 
 				if (hasBackCamera()) {
 					if (isOnline()) {
-						irPrevisualizacion.setEnabled(true);
-						setVideoUri(R.raw.video_presentacion);
-						continuar = true;
+						if(checkAndRequestPermissions()) {
+							irPrevisualizacion.setEnabled(true);
+							setVideoUri(R.raw.video_presentacion);
+							continuar = true;
+						} else {
+							finish();
+						}
 					} else {
 						setVideoUri(R.raw.video_no_internet);
 					}
@@ -135,7 +146,27 @@ public class IntroActivity extends Activity{
 		}
 	}
 
-    private void setVideoUri(int IDVideo) {
+	public static final int REQUEST_ID_MULTIPLE_PERMISSIONS = 1;
+
+	private boolean checkAndRequestPermissions() {
+		boolean allPermisionsGranted = true;
+		int cameraPermission = ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA);
+		Log.i(getClass().getName(), "camera Permission : " + cameraPermission);
+
+		List<String> listPermissionsNeeded = new ArrayList<>();
+		if (cameraPermission != PackageManager.PERMISSION_GRANTED) {
+			listPermissionsNeeded.add(android.Manifest.permission.CAMERA);
+		}
+		if (!listPermissionsNeeded.isEmpty()) {
+			ActivityCompat.requestPermissions(this, listPermissionsNeeded
+							.toArray(new String[listPermissionsNeeded.size()]),
+					REQUEST_ID_MULTIPLE_PERMISSIONS);
+			allPermisionsGranted = false;
+		}
+		return allPermisionsGranted;
+	}
+
+	private void setVideoUri(int IDVideo) {
 		Uri uri = Uri.parse("android.resource://"+getPackageName()+"/"+IDVideo);
 		v.setVideoURI(uri);
 	}

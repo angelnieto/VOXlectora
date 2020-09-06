@@ -185,12 +185,13 @@ public class ConfirmacionActivity extends Activity implements OnGesturePerformed
 	}
  	
 	private void salir(){
-		if(mp!=null && mp.isPlaying())
+		if(mp!=null && mp.isPlaying()) {
 			mp.stop();
-		mp = MediaPlayer.create(ConfirmacionActivity.this, R.raw.reiniciar);
-		mp.setOnCompletionListener(new OnCompletionListener() {
+		}
+		//mp = MediaPlayer.create(ConfirmacionActivity.this, R.raw.reiniciar);
+		//mp.setOnCompletionListener(new OnCompletionListener() {
 
-				public void onCompletion(MediaPlayer mp) {
+//				public void onCompletion(MediaPlayer mp) {
 					MediaPlayer player = MediaPlayer.create(ConfirmacionActivity.this, R.raw.salir);
 					player.setOnCompletionListener(new OnCompletionListener() {
 										
@@ -204,11 +205,11 @@ public class ConfirmacionActivity extends Activity implements OnGesturePerformed
 						}
 					});
 					player.start();
-				}
+//				}
 				
-			});
+//			});
 		  
-		  mp.start();
+//		  mp.start();
 	}
 	
 	private void mostrarVeces(){
